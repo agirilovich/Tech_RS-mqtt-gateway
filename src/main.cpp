@@ -119,7 +119,7 @@ void setup()
   // you're connected now, so print out the data
   printWifiStatus();
 
-  //initMQTT();
+  initMQTT();
 
   // Start tech manager.
   techManager.SetStream(&Serial);

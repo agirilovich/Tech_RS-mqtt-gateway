@@ -48,8 +48,7 @@ void CallbackMQTTmessage(char* topic, byte* payload, unsigned int length)
   }
 }
 
-void initMQTT()
-{
+void initMQTT() {
   Serial.print("Connecting to MQTT broker host: ");
   Serial.println(mqtt_host);
   if (!client.connect(mqtt_host, mqtt_port))
@@ -58,7 +57,7 @@ void initMQTT()
   
     //Initialise MQTT autodiscovery topic and sensor
     mqtt.setServer(mqtt_host, mqtt_port);
-
+/*
     Serial.print("Testing connection to mqtt broker...");
     if (mqtt.connect(DEVICE_BOARD_NAME, mqtt_user, mqtt_pass))
     {
@@ -131,6 +130,7 @@ void initMQTT()
       //mqtt.setCallback(CallbackMQTTmessage);
       //mqtt.subscribe(MQTTOutsideTemperatureTopicState);
     }
+    */
   } else {
     Serial.println("MQTT connection is not established, ignoring");
   }

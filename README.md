@@ -4,6 +4,7 @@ This one ESP32 based gateway read parameters of heating system and transmit them
 Afteward that data can be used with Home Assistant integrations.
 
 The project is based on information from the Elektroda forum https://www.elektroda.pl/rtvforum/topic2689981-180.html
+The main part of class 'CTechManager' is taken from the same forum discussion.
 
 # Used modules
 
