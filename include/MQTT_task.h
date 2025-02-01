@@ -1,15 +1,15 @@
 #ifndef DEVICE_BOARD_NAME
-#  define DEVICE_BOARD_NAME "OThermGW"
+#  define DEVICE_BOARD_NAME "TechRSMQTTgateway"
 #endif
 
 #ifndef MQTT_GENERAL_PREFIX
 #  define MQTT_GENERAL_PREFIX "home"
 #endif
 
-#define MQTT_SENSORS_NAME "/sensor/openthermgw"
-#define MQTT_BINARYSENSORS_NAME "/binary_sensor/openthermgw"
+#define MQTT_SENSORS_NAME "/sensor/techrsgw"
+#define MQTT_BINARYSENSORS_NAME "/binary_sensor/techrsgw"
 #define MQTT_CONFIG_PREFIX "homeassistant"
-#define SENSOR_NAME "OpenThermGateway"
+#define SENSOR_NAME "TechRSgateway"
 
 #define LIMIT_MQTT_FAILURE 10
 
@@ -27,17 +27,13 @@
 #define MQTT_TRSET_TOPIC_STATE MQTT_TOPIC_STATE "/TrSet/state"
 #define MQTT_ROOMTEMP_TOPIC_STATE MQTT_TOPIC_STATE "/Tr/state"
 
-#define MQTT_OUTSIDETEMP_TOPIC_STATE "girilowicz/RFLink32/RTL_433toMQTT/LaCrosse-TX141W/0/505272"
-
-extern float OutsideTemperature;
-
 void initMQTT();
 
 void initializeMQTTTopic(const char *Topic, char *SensorConfig);
 
 void publishMQTTPayload(const char *Topic, char *PayloadMessage);
 
-bool MQTTMessageCallback(float SetPoint, bool FlameOn, float MaxModulationLevel, float RoomSetPoint, float RoomTemperature);
+bool MQTTMessageCallback();
 
 void MQTTLoop();
 

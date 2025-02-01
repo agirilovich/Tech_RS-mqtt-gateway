@@ -17,8 +17,6 @@ const char *MQTTMaxRelModLevelSettingTopicState = MQTT_MAXMODLEVEL_TOPIC_STATE;
 const char *MQTTTrSetTopicState = MQTT_TRSET_TOPIC_STATE;
 const char *MQTTTrTopicState = MQTT_ROOMTEMP_TOPIC_STATE;
 
-const char *MQTTOutsideTemperatureTopicState = MQTT_OUTSIDETEMP_TOPIC_STATE;
-
 const char *mqtt_host = mqtt_server;
 const int mqtt_port = 1883;
 const char *mqtt_user = mqtt_username;
@@ -75,12 +73,12 @@ void initMQTT()
       JsonSensorConfig["state_topic"] = MQTTTSetTopicState;
 
       JsonObject device  = JsonSensorConfig.createNestedObject("device");
-      device["identifiers"][0] = "openthermgw000";
+      device["identifiers"][0] = "techrsgw000";
       device["connections"][0][0] = "mac";
       device["connections"][0][1] = "08:B6:1F:33:7D:AC";
-      device["model"] = "OP-GW-01";
+      device["model"] = "TECH-RS-GW-01";
       device["name"] = SENSOR_NAME;
-      device["manufacturer"] = "Aliexpress"; 
+      device["manufacturer"] = "handmade"; 
       device["sw_version"] = "1.0";  
       serializeJson(JsonSensorConfig, Buffer);
       initializeMQTTTopic(MQTTTSetTopicConfig, Buffer);
@@ -130,8 +128,8 @@ void initMQTT()
       initializeMQTTTopic(MQTTTrTopicConfig, Buffer);
 
       //Subscribe on Outside temperature sensor state
-      mqtt.setCallback(CallbackMQTTmessage);
-      mqtt.subscribe(MQTTOutsideTemperatureTopicState);
+      //mqtt.setCallback(CallbackMQTTmessage);
+      //mqtt.subscribe(MQTTOutsideTemperatureTopicState);
     }
   } else {
     Serial.println("MQTT connection is not established, ignoring");
@@ -153,14 +151,14 @@ void initializeMQTTTopic(const char *Topic, char *SensorConfig)
   //Gracefully close connection to MQTT broker
 }
 
-bool MQTTMessageCallback(float SetPoint, bool FlameOn, float MaxModulationLevel, float RoomSetPoint, float RoomTemperature)
+bool MQTTMessageCallback()
 {
   char MessageBuf[16];
   //Publish MQTT messages
   Serial.println("Publishing MQTT messages...");
   //mqtt.connect(DEVICE_BOARD_NAME, mqtt_user, mqtt_pass);
   if (mqtt.connected()) {
-
+/*
     sprintf(MessageBuf, "%d", int(SetPoint));
     mqtt.publish(MQTTTSetTopicState, MessageBuf, false);
 
@@ -175,7 +173,7 @@ bool MQTTMessageCallback(float SetPoint, bool FlameOn, float MaxModulationLevel,
 
     sprintf(MessageBuf, "%d", int(RoomTemperature));
     mqtt.publish(MQTTTrTopicState, MessageBuf, false);
-
+*/
     Serial.println("Done");
   
   }

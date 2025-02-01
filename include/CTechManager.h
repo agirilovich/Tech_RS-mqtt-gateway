@@ -90,7 +90,7 @@ class CTechManager
         uint16_t txSize = 0;
 
         // Device state.
-        DeviceData deviceState = {0};
+        DeviceData deviceState;
         StaticJsonDocument<2048> json;
 
         // Internal utils.
@@ -111,6 +111,8 @@ class CTechManager
         char* ToHex(uint16_t value);
 
         void UpdateUnknownCommand(uint16_t id, uint16_t val);
+
+        Stream* ioStream = nullptr;
 
         uint16_t requestStamp = 0;
 
@@ -249,6 +251,8 @@ class CTechManager
 
         // API
         CTechManager(uint16_t deviceAddress = ETechDeviceAddress::GSM);
+
+        void SetStream(Stream* stream) { ioStream = stream; };
         
         void Update();
 

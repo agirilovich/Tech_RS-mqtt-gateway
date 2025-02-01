@@ -21,71 +21,46 @@
 #define RX_PULLUP 16
 #define TX_PULLUP 17
 
-//Global variables in Master<>Slave communication
-float SetPoint = 0;
-bool FlameOn = false;
-float MaxModulationLevel = 0;
-float RoomSetPoint = 0;
-float RoomTemperature = 0;
-
 hw_timer_t *Timer0_Cfg = NULL;
 
 
+/*
 #include <SoftwareSerial.h>
 int rx_pin = 2;
 int tx_pin = 5;
 SoftwareSerial COSerial(rx_pin, tx_pin);
-
+*/
 #include "CTechManager.h"
 CTechManager techManager;
-
-void IRAM_ATTR handleInterrupt() {
-    ot.handleInterrupt();
-}
+Stream* response = nullptr;
 
 bool publishMQTT = false;
 int mqtt_num_attempts = 0;
 const int max_mqtt_attempts = 600;
-void IRAM_ATTR Timer0_ISR()
-{
-  readRS;
-
-  publishMQTT = true;
-}
 
 String readRS() {
-  /*
-  int inChar;
-  String inStr = "";
-  char buff[2];
-  long startTime = millis();
-
-  if (COSerial.available()) {
-    while (millis() - startTime < 1500) {
-      inChar = -1;
-      inChar = COSerial.read();
-      if (inChar > -1) {
-        sprintf(buff,"%02X",inChar);
-        inStr = inStr + buff;
-      }
-    }
-  }
-  return inStr;
-  */
-  techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
+  //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
   techManager.GetStateJson(*response);
-  publishMQTT(response);
+  //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
+  //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
+  //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
 }
 
-void (publishMQTT) {
+void publishStateJsonMQTT() {
   digitalWrite(LED_BUILTIN, HIGH);
-  if (MQTTMessageCallback(SetPoint, FlameOn, MaxModulationLevel, RoomSetPoint, RoomTemperature))
+  if (MQTTMessageCallback())
   {
     mqtt_num_attempts = 0;
   } else {
     mqtt_num_attempts++;
   }
   digitalWrite(LED_BUILTIN, LOW);
+}
+
+void IRAM_ATTR Timer0_ISR()
+{
+  readRS;
+  //publishStateJsonMQTT(response);
 }
 
 void setup()
@@ -110,17 +85,17 @@ void setup()
     break;
   }
 
-  pinMode(rx_pin, INPUT);
-  pinMode(tx_pin, OUTPUT);
+  //pinMode(rx_pin, INPUT);
+  //pinMode(tx_pin, OUTPUT);
   pinMode(RX_PULLUP, OUTPUT);
   pinMode(TX_PULLUP, OUTPUT);
   digitalWrite(RX_PULLUP, HIGH);
   digitalWrite(TX_PULLUP, HIGH);
 
   //Set the software port for communication with Tech controller
-  COSerial.begin(9600);
-  while (!COSerial);
-  Serial.println("SW Serial - Ready");
+  //COSerial.begin(9600);
+  //while (!COSerial);
+  //Serial.println("SW Serial - Ready");
 
   //Set witchdog timeout for 32 seconds
   esp_task_wdt_init(WDT_TIMEOUT, true);
@@ -144,9 +119,13 @@ void setup()
   // you're connected now, so print out the data
   printWifiStatus();
 
-  initMQTT();
+  //initMQTT();
 
-  Setup Hardware Timer for MQTT publish
+  // Start tech manager.
+  techManager.SetStream(&Serial);
+
+
+  //Setup Hardware Timer for MQTT publish
   Timer0_Cfg = timerBegin(0, 300, true);
   timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
   timerAlarmWrite(Timer0_Cfg, 10000000, true);

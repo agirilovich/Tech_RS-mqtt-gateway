@@ -225,10 +225,6 @@ uint16_t CTechManager::ComputeCRC(uint16_t* packet, uint16_t packetLen)
     return crc;        
 }
 
-#pragma endregion
-
-#pragma region TX helpers
-
 void CTechManager::ResetTransmitter()
 {
     txSize = 0;
@@ -349,19 +345,6 @@ bool CTechManager::AppendByte(uint8_t data)
             
             // Complete packet.
             packet[packetSize++] = readerValue;
-
-            // Dump packet.
-            if (debugMode)
-            {
-                if (client && client->connected())
-                {
-                    for (int i = 0; i < packetSize; i++)
-                    {
-                        client->write((char)((packet[i] >> 8) & 0xFF));
-                        client->write((char)(packet[i] & 0xFF));
-                    }
-                }
-            }
 
             // Check CRC.
             crc = ComputeCRC(packet, packetSize - 2);
