@@ -18,8 +18,8 @@
 #define LED_BUILTIN 22
 
 //Ports of pull-up transistors
-#define RX_PULLUP 16
-#define TX_PULLUP 17
+#define RX_PULLUP 21
+#define TX_PULLUP 22
 
 hw_timer_t *Timer0_Cfg = NULL;
 
@@ -113,7 +113,8 @@ void setup()
   initMQTT();
 
   // Start tech manager.
-  techManager.SetStream(&Serial);
+  Serial2.begin(9600, SERIAL_8N1, 16, 17);
+  techManager.SetStream(&Serial2);
 
 
   //Setup Hardware Timer for MQTT publish
