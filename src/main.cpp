@@ -30,6 +30,8 @@ Stream* response = nullptr;
 bool publishMQTT = false;
 int mqtt_num_attempts = 0;
 const int max_mqtt_attempts = 600;
+ulong RSStamp = 0;
+ulong RSDelay = 60 * 1000;
 
 void readRS()
 {
@@ -51,12 +53,6 @@ void publishStateJsonMQTT() {
     mqtt_num_attempts++;
   }
   digitalWrite(LED_BUILTIN, LOW);
-}
-
-void IRAM_ATTR Timer0_ISR()
-{
-  readRS;
-  //publishStateJsonMQTT(response);
 }
 
 void setup()
@@ -116,20 +112,18 @@ void setup()
   Serial2.begin(9600, SERIAL_8N1, 16, 17);
   techManager.SetStream(&Serial2);
 
-
-  //Setup Hardware Timer for MQTT publish
-  Timer0_Cfg = timerBegin(0, 300, true);
-  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
-  timerAlarmWrite(Timer0_Cfg, 10000000, true);
-  timerAlarmEnable(Timer0_Cfg);
-
 }
-
 
 void loop()
 {
   techManager.Update();
   MQTTLoop();
+  if (millis() - RSStamp > RSDelay)
+  {
+    RSStamp = millis();
+    readRS();
+    //publishStateJsonMQTT();
+  }
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
   {
