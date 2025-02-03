@@ -9,6 +9,20 @@ CTechManager::CTechManager(uint16_t addr)
 
 void CTechManager::Update()
 {
+    // Process data.
+    if (ioStream != nullptr)
+    {
+        while(ioStream->available())
+        {
+            if (AppendByte(ioStream->read()))
+            {
+                // Send ACK.
+                if (autoAck || (txSize > 2)) 
+                    SendPacket();
+            }
+        }
+    }
+
     // Stats.
     if (millis() - statsStamp > statsDelay)
     {
@@ -194,8 +208,11 @@ void CTechManager::StoreStats()
     firstExt = false;
 
     coStats.Append(deviceState.co_temp);
+    Serial.println(deviceState.co_temp);
     cwuStats.Append(deviceState.cwu_temp);
+    Serial.println(deviceState.cwu_temp);
     extStats.Append(deviceState.external_temp);
+    Serial.println(deviceState.external_temp);
 }
 
 uint16_t CTechManager::CRC16Cycle(uint16_t crc, uint8_t byte)
@@ -231,6 +248,30 @@ void CTechManager::ResetTransmitter()
     txBuffer[txSize++] = ETechCommand::FRAME_MAGIC;
     txBuffer[txSize++] = ETechDeviceAddress::All;
 }
+
+void CTechManager::SendPacket()
+{
+    if (ioStream != nullptr)
+    {
+        uint16_t crc = ComputeCRC(txBuffer, txSize);
+        
+        txBuffer[txSize++] = ETechCommand::CMD_CRC;
+        txBuffer[txSize++] = crc;
+
+        for (uint16_t i = 0; i < txSize; i++)
+        {
+            // MSB first (big-endian on line).
+            ioStream->write((char)((txBuffer[i] >> 8) & 0xFF));
+
+            // LSB second.
+            ioStream->write((char)(txBuffer[i] & 0xFF));
+        }
+    }
+
+    // Reset transmitter.
+    ResetTransmitter();
+}
+
 
 void CTechManager::ResetReader()
 {

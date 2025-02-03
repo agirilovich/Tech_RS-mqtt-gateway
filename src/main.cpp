@@ -23,13 +23,6 @@
 
 hw_timer_t *Timer0_Cfg = NULL;
 
-
-/*
-#include <SoftwareSerial.h>
-int rx_pin = 2;
-int tx_pin = 5;
-SoftwareSerial COSerial(rx_pin, tx_pin);
-*/
 #include "CTechManager.h"
 CTechManager techManager;
 Stream* response = nullptr;
@@ -38,9 +31,12 @@ bool publishMQTT = false;
 int mqtt_num_attempts = 0;
 const int max_mqtt_attempts = 600;
 
-String readRS() {
+void readRS()
+{
   //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
+  Serial.println("Execute readRS fucntion");
   techManager.GetStateJson(*response);
+  Serial.print(response->readString());
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
@@ -92,11 +88,6 @@ void setup()
   digitalWrite(RX_PULLUP, HIGH);
   digitalWrite(TX_PULLUP, HIGH);
 
-  //Set the software port for communication with Tech controller
-  //COSerial.begin(9600);
-  //while (!COSerial);
-  //Serial.println("SW Serial - Ready");
-
   //Set witchdog timeout for 32 seconds
   esp_task_wdt_init(WDT_TIMEOUT, true);
   esp_task_wdt_add(NULL);
@@ -136,9 +127,7 @@ void setup()
 
 void loop()
 {
-  digitalWrite(LED_BUILTIN, HIGH);
   techManager.Update();
-  digitalWrite(LED_BUILTIN, LOW);
   MQTTLoop();
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
