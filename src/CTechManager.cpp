@@ -154,6 +154,7 @@ void CTechManager::GetStateJson(Print& output, bool raw)
     }
 
     serializeJson(json, output);
+    serializeJson(json, Serial);
 }
 
 void CTechManager::GetStatsJson(Print& output, EStatsType type)
@@ -188,7 +189,8 @@ void CTechManager::GetStatsJson(Print& output, EStatsType type)
         readPtr = (readPtr + 1) % STATS_DEPTH;
     }
 
-    serializeJson(json, output);
+    //serializeJson(json, output);
+    serializeJson(json, Serial);
 }
 
 void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)

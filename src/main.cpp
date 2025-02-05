@@ -37,11 +37,11 @@ void readRS()
 {
   //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
   Serial.println("Execute readRS fucntion");
-  techManager.GetStateJson(*response);
-  Serial.print(response->readString());
+  techManager.GetStateJson(Serial1);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
+  //Serial.print(response->readString());
 }
 
 void publishStateJsonMQTT() {
