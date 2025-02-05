@@ -23,9 +23,6 @@
 
 hw_timer_t *Timer0_Cfg = NULL;
 
-#include "CTechManager.h"
-CTechManager techManager;
-Stream* response = nullptr;
 
 bool publishMQTT = false;
 int mqtt_num_attempts = 0;
@@ -37,8 +34,8 @@ void readRS()
 {
   //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
   Serial.println("Execute readRS fucntion");
-  techManager.GetStateJson(*response);
-  Serial.print(response->readString());
+  //techManager.GetStateJson(*response);
+  //Serial.print(response->readString());
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
@@ -53,6 +50,25 @@ void publishStateJsonMQTT() {
     mqtt_num_attempts++;
   }
   digitalWrite(LED_BUILTIN, LOW);
+}
+
+String readSerial() {
+  int inChar;
+  String inStr = "";
+  char buff[2];
+  long startTime = millis();
+  
+  if (Serial2.available()) {
+    while (millis() - startTime < 1500) {
+      inChar = -1;
+      inChar = Serial2.read();
+      if (inChar > -1) {
+        sprintf(buff,"%02X",inChar);
+        inStr = inStr + buff;
+      }
+    }
+  }
+  return inStr;
 }
 
 void setup()
@@ -110,21 +126,22 @@ void setup()
 
   // Start tech manager.
   Serial2.begin(9600, SERIAL_8N1, 16, 17);
-  techManager.SetStream(&Serial2);
+  //techManager.SetStream(&Serial2);
+  while (!Serial2);
+  Serial.println("Serial2 - Ready");
 
 }
 
 void loop()
 {
-  techManager.Update();
+  //techManager.Update();
   MQTTLoop();
-  if (millis() - RSStamp > RSDelay)
-  {
-    RSStamp = millis();
-    readRS();
-    //publishStateJsonMQTT();
+  String fromSerial = readSerial();
+  if (fromSerial.length() > 0) {
+    Serial.println("dane z CO:");
+    Serial.println(fromSerial);
+    Serial.println("=============");
   }
-  //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
   {
     esp_task_wdt_reset();
