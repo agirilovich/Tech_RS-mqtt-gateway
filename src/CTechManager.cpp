@@ -12,14 +12,32 @@ void CTechManager::Update()
     // Process data.
     if (ioStream != nullptr)
     {
+        int inChar;
+        String inStr = "";
+        char buff[2];
+        long startTime = millis();
+
+        
         while(ioStream->available())
         {
+            while (millis() - startTime < 1500)
+            {
+                inChar = -1;
+                inChar = COSerial.read();
+                if (inChar > -1)
+                {
+                    sprintf(buff,"%02X",inChar);
+                    inStr = inStr + buff;
+                }
+            }
+            Serial.println(inStr);
+            /*
             if (AppendByte(ioStream->read()))
             {
                 // Send ACK.
                 if (autoAck || (txSize > 2)) 
                     SendPacket();
-            }
+            }*/
         }
     }
 

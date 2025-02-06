@@ -25,7 +25,6 @@ hw_timer_t *Timer0_Cfg = NULL;
 
 #include "CTechManager.h"
 CTechManager techManager;
-Stream* response = nullptr;
 
 bool publishMQTT = false;
 int mqtt_num_attempts = 0;
@@ -35,9 +34,10 @@ ulong RSDelay = 60 * 1000;
 
 void readRS()
 {
+  Stream* response = nullptr;
   //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
   Serial.println("Execute readRS fucntion");
-  techManager.GetStateJson(Serial1);
+  techManager.GetStateJson(*response);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
@@ -111,7 +111,7 @@ void setup()
   // Start tech manager.
   Serial2.begin(9600, SERIAL_8N1, 16, 17);
   techManager.SetStream(&Serial2);
-
+  techManager.SetStatsDelay(30);
 }
 
 void loop()
