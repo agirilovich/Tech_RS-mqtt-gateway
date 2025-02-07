@@ -18,33 +18,34 @@
 #define LED_BUILTIN 22
 
 //Ports of pull-up transistors
-#define RX_PULLUP 16
-#define TX_PULLUP 17
+#define RX_PULLUP 21
+#define TX_PULLUP 22
 
 hw_timer_t *Timer0_Cfg = NULL;
 
-
-/*
-#include <SoftwareSerial.h>
-int rx_pin = 2;
-int tx_pin = 5;
-SoftwareSerial COSerial(rx_pin, tx_pin);
-*/
 #include "CTechManager.h"
 CTechManager techManager;
-Stream* response = nullptr;
 
-bool publishMQTT = false;
 int mqtt_num_attempts = 0;
-const int max_mqtt_attempts = 600;
+const int max_mqtt_attempts = 60;
 
-String readRS() {
+
+ulong SendStamp = 0;
+ulong SendDelay = 60 * 1000;
+
+/*
+void readRS()
+{
+  Print* response = nullptr;
   //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
-  techManager.GetStateJson(*response);
-  //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
+  techManager.GetStateJson(*response, true);
+  Serial.println("");
+;  //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
+  //Serial.print(response->readString());
 }
+*/
 
 void publishStateJsonMQTT() {
   digitalWrite(LED_BUILTIN, HIGH);
@@ -55,12 +56,6 @@ void publishStateJsonMQTT() {
     mqtt_num_attempts++;
   }
   digitalWrite(LED_BUILTIN, LOW);
-}
-
-void IRAM_ATTR Timer0_ISR()
-{
-  readRS;
-  //publishStateJsonMQTT(response);
 }
 
 void setup()
@@ -92,11 +87,6 @@ void setup()
   digitalWrite(RX_PULLUP, HIGH);
   digitalWrite(TX_PULLUP, HIGH);
 
-  //Set the software port for communication with Tech controller
-  //COSerial.begin(9600);
-  //while (!COSerial);
-  //Serial.println("SW Serial - Ready");
-
   //Set witchdog timeout for 32 seconds
   esp_task_wdt_init(WDT_TIMEOUT, true);
   esp_task_wdt_add(NULL);
@@ -122,24 +112,54 @@ void setup()
   initMQTT();
 
   // Start tech manager.
-  techManager.SetStream(&Serial);
-
-
-  //Setup Hardware Timer for MQTT publish
-  Timer0_Cfg = timerBegin(0, 300, true);
-  timerAttachInterrupt(Timer0_Cfg, &Timer0_ISR, true);
-  timerAlarmWrite(Timer0_Cfg, 10000000, true);
-  timerAlarmEnable(Timer0_Cfg);
-
+  Serial2.begin(9600, SERIAL_8N1, 16, 17, true); // Invers TTL for Serial2 port on some ESP32 boards
+  while (!Serial2);
+  Serial.println("HW port Serial2 - Ready");
+  techManager.SetStream(&Serial2);
 }
 
+String readSerial()
+{
+  int inChar;
+  String inStr = "";
+  char buff[2];
+  long startTime = millis();
+
+  if (Serial2.available())
+  {
+    while (millis() - startTime < 1500)
+    {
+      inChar = -1;
+      inChar = Serial2.read();
+      if (inChar > -1)
+      {
+        sprintf(buff,"%02X",inChar);
+        inStr = inStr + buff;
+      }
+    }
+  }
+  return inStr;
+}
 
 void loop()
 {
-  digitalWrite(LED_BUILTIN, HIGH);
+  /*
+  String fromSerial = readSerial();
+  if (fromSerial.length() > 0)
+  {
+    Serial.println("dane z CO:");
+    Serial.println(fromSerial);
+    Serial.println("=============");
+  }
+  */
   techManager.Update();
-  digitalWrite(LED_BUILTIN, LOW);
   MQTTLoop();
+  if (millis() - SendStamp > SendDelay)
+  {
+    SendStamp = millis();
+    //readRS();
+    publishStateJsonMQTT();
+  }
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
   {

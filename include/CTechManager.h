@@ -117,6 +117,7 @@ class CTechManager
         uint16_t requestStamp = 0;
 
         void ResetTransmitter();
+        void SendPacket();
 
         // Config.
         uint16_t deviceAddress = 0xFFF8;

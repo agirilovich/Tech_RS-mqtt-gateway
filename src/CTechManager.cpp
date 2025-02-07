@@ -9,6 +9,20 @@ CTechManager::CTechManager(uint16_t addr)
 
 void CTechManager::Update()
 {
+    // Process data.
+    if (ioStream != nullptr)
+    {
+        while(ioStream->available())
+        {
+            if (AppendByte(ioStream->read()))
+            {
+                // Send ACK.
+                if (autoAck || (txSize > 2)) 
+                    SendPacket();
+            }
+        }
+    }
+
     // Stats.
     if (millis() - statsStamp > statsDelay)
     {
@@ -140,6 +154,7 @@ void CTechManager::GetStateJson(Print& output, bool raw)
     }
 
     serializeJson(json, output);
+    //serializeJsonPretty(json, Serial);
 }
 
 void CTechManager::GetStatsJson(Print& output, EStatsType type)
@@ -175,6 +190,7 @@ void CTechManager::GetStatsJson(Print& output, EStatsType type)
     }
 
     serializeJson(json, output);
+    //serializeJson(json, Serial);
 }
 
 void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)
@@ -231,6 +247,30 @@ void CTechManager::ResetTransmitter()
     txBuffer[txSize++] = ETechCommand::FRAME_MAGIC;
     txBuffer[txSize++] = ETechDeviceAddress::All;
 }
+
+void CTechManager::SendPacket()
+{
+    if (ioStream != nullptr)
+    {
+        uint16_t crc = ComputeCRC(txBuffer, txSize);
+        
+        txBuffer[txSize++] = ETechCommand::CMD_CRC;
+        txBuffer[txSize++] = crc;
+
+        for (uint16_t i = 0; i < txSize; i++)
+        {
+            // MSB first (big-endian on line).
+            ioStream->write((char)((txBuffer[i] >> 8) & 0xFF));
+
+            // LSB second.
+            ioStream->write((char)(txBuffer[i] & 0xFF));
+        }
+    }
+
+    // Reset transmitter.
+    ResetTransmitter();
+}
+
 
 void CTechManager::ResetReader()
 {
