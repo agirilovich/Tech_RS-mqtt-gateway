@@ -26,23 +26,26 @@ hw_timer_t *Timer0_Cfg = NULL;
 #include "CTechManager.h"
 CTechManager techManager;
 
-bool publishMQTT = false;
 int mqtt_num_attempts = 0;
-const int max_mqtt_attempts = 600;
-ulong RSStamp = 0;
-ulong RSDelay = 60 * 1000;
+const int max_mqtt_attempts = 60;
 
+
+ulong SendStamp = 0;
+ulong SendDelay = 60 * 1000;
+
+/*
 void readRS()
 {
-  Stream* response = nullptr;
+  Print* response = nullptr;
   //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
-  Serial.println("Execute readRS fucntion");
-  techManager.GetStateJson(*response);
-  //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
+  techManager.GetStateJson(*response, true);
+  Serial.println("");
+;  //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
   //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
   //Serial.print(response->readString());
 }
+*/
 
 void publishStateJsonMQTT() {
   digitalWrite(LED_BUILTIN, HIGH);
@@ -109,20 +112,53 @@ void setup()
   initMQTT();
 
   // Start tech manager.
-  Serial2.begin(9600, SERIAL_8N1, 16, 17);
+  Serial2.begin(9600, SERIAL_8N1, 16, 17, true); // Invers TTL for Serial2 port on some ESP32 boards
+  while (!Serial2);
+  Serial.println("HW port Serial2 - Ready");
   techManager.SetStream(&Serial2);
-  techManager.SetStatsDelay(30);
+}
+
+String readSerial()
+{
+  int inChar;
+  String inStr = "";
+  char buff[2];
+  long startTime = millis();
+
+  if (Serial2.available())
+  {
+    while (millis() - startTime < 1500)
+    {
+      inChar = -1;
+      inChar = Serial2.read();
+      if (inChar > -1)
+      {
+        sprintf(buff,"%02X",inChar);
+        inStr = inStr + buff;
+      }
+    }
+  }
+  return inStr;
 }
 
 void loop()
 {
+  /*
+  String fromSerial = readSerial();
+  if (fromSerial.length() > 0)
+  {
+    Serial.println("dane z CO:");
+    Serial.println(fromSerial);
+    Serial.println("=============");
+  }
+  */
   techManager.Update();
   MQTTLoop();
-  if (millis() - RSStamp > RSDelay)
+  if (millis() - SendStamp > SendDelay)
   {
-    RSStamp = millis();
-    readRS();
-    //publishStateJsonMQTT();
+    SendStamp = millis();
+    //readRS();
+    publishStateJsonMQTT();
   }
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)

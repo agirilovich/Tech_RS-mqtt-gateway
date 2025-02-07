@@ -12,32 +12,14 @@ void CTechManager::Update()
     // Process data.
     if (ioStream != nullptr)
     {
-        int inChar;
-        String inStr = "";
-        char buff[2];
-        long startTime = millis();
-
-        
         while(ioStream->available())
         {
-            while (millis() - startTime < 1500)
-            {
-                inChar = -1;
-                inChar = COSerial.read();
-                if (inChar > -1)
-                {
-                    sprintf(buff,"%02X",inChar);
-                    inStr = inStr + buff;
-                }
-            }
-            Serial.println(inStr);
-            /*
             if (AppendByte(ioStream->read()))
             {
                 // Send ACK.
                 if (autoAck || (txSize > 2)) 
                     SendPacket();
-            }*/
+            }
         }
     }
 
@@ -172,7 +154,7 @@ void CTechManager::GetStateJson(Print& output, bool raw)
     }
 
     serializeJson(json, output);
-    serializeJson(json, Serial);
+    //serializeJsonPretty(json, Serial);
 }
 
 void CTechManager::GetStatsJson(Print& output, EStatsType type)
@@ -207,8 +189,8 @@ void CTechManager::GetStatsJson(Print& output, EStatsType type)
         readPtr = (readPtr + 1) % STATS_DEPTH;
     }
 
-    //serializeJson(json, output);
-    serializeJson(json, Serial);
+    serializeJson(json, output);
+    //serializeJson(json, Serial);
 }
 
 void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)
@@ -228,11 +210,8 @@ void CTechManager::StoreStats()
     firstExt = false;
 
     coStats.Append(deviceState.co_temp);
-    Serial.println(deviceState.co_temp);
     cwuStats.Append(deviceState.cwu_temp);
-    Serial.println(deviceState.cwu_temp);
     extStats.Append(deviceState.external_temp);
-    Serial.println(deviceState.external_temp);
 }
 
 uint16_t CTechManager::CRC16Cycle(uint16_t crc, uint8_t byte)
