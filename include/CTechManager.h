@@ -238,6 +238,8 @@ class CTechManager
 
             // Command set.
             SET_PUMP_MODE = 0x245,
+            SET_REG_TIME = 0x1620,
+            SET_REG_DAY = 0x1621,
 
             // Commands sniffed from ST-65 GSM module.
             SET_TEMP_CO = 0x01f6,

@@ -32,6 +32,9 @@ const int max_mqtt_attempts = 60;
 ulong SendStamp = 0;
 ulong SendDelay = 60 * 1000;
 
+ulong DateTimeSetStamp = 0;
+ulong DateTimeSetDelay = 5 * 60 * 1000;
+
 struct SensorsData readRS()
 {
   struct SensorsData SensorsCurrentValues;
@@ -43,8 +46,6 @@ struct SensorsData readRS()
   } else {
     timeinfo.tm_hour = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
     timeinfo.tm_min = (int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
-    //setTime(dev_hours, dev_minutes, 0, day(now()), month(now()), year(now()));
-    //timeinfo.tm_wday
     time_t device_time = mktime(&timeinfo);
     SensorsCurrentValues.device_time = time(&device_time);
   }
@@ -72,6 +73,20 @@ struct SensorsData readRS()
   SensorsCurrentValues.pump_mode = techManager.GetState(CTechManager::ETechCommand::PUMP_MODE);
     
   return SensorsCurrentValues;
+}
+
+void UpdateDeviceTime()
+{
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+  } else {
+    int hour = (int)timeinfo.tm_hour;
+    int min = (int)timeinfo.tm_min;
+    techManager.SendCommand(CTechManager::ETechCommand::REG_TIME, (( hour << 8  ) | min & 0x00FF ));
+    techManager.SendCommand(CTechManager::ETechCommand::REG_DAY, timeinfo.tm_wday);
+  }
 }
 
 
@@ -190,6 +205,12 @@ void loop()
     }
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("======================================================================");
+  }
+  if (millis() - DateTimeSetStamp > DateTimeSetDelay)
+  {
+    DateTimeSetStamp = millis();
+    Serial.println("Sync Day and Time in the Device");
+    UpdateDeviceTime();
   }
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
