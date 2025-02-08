@@ -9,6 +9,7 @@
 #include "controlWiFi.h"
 
 #include "MQTT_task.h"
+#include <Time.h>
 
 #include <esp_task_wdt.h>
 #define WDT_TIMEOUT 60
@@ -34,10 +35,19 @@ ulong SendDelay = 60 * 1000;
 struct SensorsData readRS()
 {
   struct SensorsData SensorsCurrentValues;
+  struct tm timeinfo;
 
-  //int dev_hours = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
-  //int dev_minutes = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
-  //setTime(dev_hours, dev_minutes, 0, day(now()), month(now()), year(now()));
+  if(!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+  } else {
+    timeinfo.tm_hour = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
+    timeinfo.tm_min = (int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
+    //setTime(dev_hours, dev_minutes, 0, day(now()), month(now()), year(now()));
+    //timeinfo.tm_wday
+    time_t device_time = mktime(&timeinfo);
+    SensorsCurrentValues.device_time = time(&device_time);
+  }
 
   SensorsCurrentValues.device_time = techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME);
   SensorsCurrentValues.device_state = techManager.GetState(CTechManager::ETechCommand::DEVICE_STATE);
