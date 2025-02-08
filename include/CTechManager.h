@@ -187,7 +187,7 @@ class CTechManager
             DEVICE_TIME = 0x1620,
             DEVICE_DAY = 0x1621,
             DEVICE_MODEL = 0x16FF,
-            DEVICE_STATE = 0x01F4,
+            DEVICE_STATE = 0x157C,
 
             FUMES_TEMP = 0x15B7,
             EXTERNAL_TEMP = 0x1681,

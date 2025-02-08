@@ -362,7 +362,7 @@ void CTechManager::ProcessPacket()
                 deviceState.device_day =  cmd_val;
             break;
 
-            case(ETechCommand::DEVICE_STATE): // 0x01F4
+            case(ETechCommand::DEVICE_STATE): // 0x157C
                 deviceState.device_state =  cmd_val;
             break;
 
