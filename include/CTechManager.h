@@ -1,4 +1,4 @@
-#include "ArduinoJson.h"
+#include "Arduino.h"
 
 class CTechManager
 {
@@ -91,7 +91,6 @@ class CTechManager
 
         // Device state.
         DeviceData deviceState;
-        StaticJsonDocument<2048> json;
 
         // Internal utils.
         void ResetReader();
@@ -108,7 +107,6 @@ class CTechManager
         char* GetTempMax(uint16_t value);
         char* GetPercentPrecise(uint16_t value);
         char* GetTime(uint16_t value);
-        char* ToHex(uint16_t value);
 
         void UpdateUnknownCommand(uint16_t id, uint16_t val);
 
@@ -190,6 +188,7 @@ class CTechManager
             EXTERNAL_TEMP = 0x1681,
             
             CO_TEMP = 0x157D,
+            CO_TEMP_RET = 0x156D,
             CO_MIN_MAX = 0x169E,
             CO_TEMP_SET = 0x157E,
             CO_TEMP_ADJUSTMENT = 0x1684, // *** new value.
@@ -243,13 +242,6 @@ class CTechManager
 
         };
 
-        enum EStatsType : uint8_t
-        {
-            co,
-            cwu,
-            ext
-        };
-
         // API
         CTechManager(uint16_t deviceAddress = ETechDeviceAddress::GSM);
 
@@ -258,8 +250,9 @@ class CTechManager
         void Update();
 
         void SendCommand(ETechCommand cmd, uint16_t value);
-        void GetStateJson(Print& output, bool raw = false);
-        void GetStatsJson(Print& output, EStatsType type);
+
+        float GetState(uint16_t value);
+        float GetState(uint16_t value, int valve);
 
         // Dev.
         void SetDebug(bool val) { debugMode = val; };

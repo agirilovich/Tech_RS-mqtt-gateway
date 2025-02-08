@@ -1,6 +1,6 @@
 #include "MQTT_task.h"
 #include "controlWiFi.h"
-#include "Credentials.h"
+
 
 const char *mqtt_host = mqtt_server;
 const int mqtt_port = 1883;
@@ -12,45 +12,152 @@ WiFiClient client;
 #include <PubSubClient.h>
 PubSubClient mqtt(client);
 
-void CallbackMQTTmessage(char* topic, byte* payload, unsigned int length)
-{
-  StaticJsonDocument<512> JsonTemperaturePayload;
-  deserializeJson(JsonTemperaturePayload, (const byte*)payload, length);
-  float temp = JsonTemperaturePayload["temperature_C"];
-  if (temp != 0) {
-    Serial.print("Outdoor Temperature Message arrived [ ");
-    OutsideTemperature = temp;
-    Serial.print(temp);
-    Serial.println(" C ] ");
-  }
-}
+// Define Device in Home Assistant scope of integrations
+HADevice ha_device(DEVICE_BOARD_NAME, DEVICE_BOARD_NAME, "1.0");
+
+// Define Home Assistant sensors
+HASensorNumeric device_time = HASensorNumeric("device_time", "Device Time", ha_device);
+HASensorNumeric ext_temp = HASensorNumeric("ext_temp", "Temperature outside", ha_device, "С");
+HASensorNumeric co_temp = HASensorNumeric("co_temp", "Temperature CO", ha_device, "С");
+HASensorNumeric co_temp_ret = HASensorNumeric("co_temp_ret", "Temperature return CO", ha_device, "С");
+HASensorNumeric cwu_temp = HASensorNumeric("cwu_temp", "Temperature CWU", ha_device, "С");
+HASensorNumeric cwu_temp_ret = HASensorNumeric("cwu_temp_ret", "Temperature return CWU", ha_device, "С");
+HASensorNumeric cwu_temp_set = HASensorNumeric("cwu_temp_set", "Temperature set CWU", ha_device, "С");
+HASensorBinary pump_state_co = HASensorBinary("pump_state_co", "CO pump state", ha_device);
+HASensorBinary pump_state_cwu = HASensorBinary("pump_state_cwu", "CWU pump state", ha_device);
+
+// Valve 1
+HASensorBinary mix_valve1_state = HASensorBinary("mix_valve1_state", "Mix Valve 1 state", ha_device);
+HASensorNumeric mix_valve1_openLevel = HASensorNumeric("mix_valve1_openLevel", "Mix Valve 1 Open Level", ha_device, "%");
+HASensorNumeric mix_valve1_type = HASensorNumeric("mix_valve1_type", "Mix Valve 1 Type", ha_device);
+HASensorNumeric mix_valve1_temp_set = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature set", ha_device, "С");
+HASensorNumeric mix_valve1_temp = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature", ha_device, "С");
+
+// Valve 2
+HASensorBinary mix_valve2_state = HASensorBinary("mix_valve2_state", "Mix Valve 2 state", ha_device);
+HASensorNumeric mix_valve2_openLevel = HASensorNumeric("mix_valve2_openLevel", "Mix Valve 2 Open Level", ha_device, "%");
+HASensorNumeric mix_valve2_type = HASensorNumeric("mix_valve2_type", "Mix Valve 2 Type", ha_device);
+HASensorNumeric mix_valve2_temp_set = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature set", ha_device, "С");
+HASensorNumeric mix_valve2_temp = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature", ha_device, "С");
+
+// Mode
+#define OPTIONS_COUNT 4
+const char *pump_mode_options[4] PROGMEM = {
+     "Grzanie domu",
+     "Priorytet bojlera",
+     "Pompy równoległe",
+     "Tryb letni"
+     };
+HASelect pump_mode = HASelect("pump_mode", "Mode", ha_device, OPTIONS_COUNT, pump_mode_options);
+
 
 void initMQTT() {
-  Serial.print("Connecting to MQTT broker host: ");
-  Serial.println(mqtt_host);
-  if (!client.connect(mqtt_host, mqtt_port))
-  {
-    Serial.println("Connected to MQTT host!");
-  
-    //Initialise MQTT autodiscovery topic and sensor
-    mqtt.setServer(mqtt_host, mqtt_port);
+  //Initialise MQTT autodiscovery topic and sensor
+  mqtt.setServer(mqtt_host, mqtt_port);
+  HAMQTT.begin(mqtt, 20);
 
-    Serial.print("Testing connection to mqtt broker...");
-    if (mqtt.connect(DEVICE_BOARD_NAME, mqtt_user, mqtt_pass))
-    {
-      Serial.println(" connected!");
+  device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
+  device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
+  ext_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  ext_temp.addFeature(HA_FEATURE_ICON,"mdi:home-thermometer-outline");
+  co_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  co_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  co_temp_ret.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  co_temp_ret.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  cwu_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  cwu_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  cwu_temp_ret.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  cwu_temp_ret.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  cwu_temp_set.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  cwu_temp_set.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  pump_state_co.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
+  pump_state_co.addFeature(HA_FEATURE_ICON,"mdi:pump");
+  pump_state_cwu.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
+  pump_state_cwu.addFeature(HA_FEATURE_ICON,"mdi:pump");
 
-      //Define Sensors
-      HAMQTT.addEntity(ha_switch);
+  mix_valve1_state.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
+  mix_valve1_state.addFeature(HA_FEATURE_ICON,"mdi:pipe-valve");
+  mix_valve1_openLevel.addFeature(HA_FEATURE_DEVICE_CLASS, "POWER_FACTOR");
+  mix_valve1_openLevel.addFeature(HA_FEATURE_ICON,"mdi:valve");
+  mix_valve1_temp_set.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  mix_valve1_temp_set.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  mix_valve1_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  mix_valve1_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
 
-      //Assign incoming message callback
-      HAMQTT.setCallback(MQTTMessageCallback);
-      
-  } else {
-    Serial.println("MQTT connection is not established, ignoring");
-  }
+  mix_valve2_state.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
+  mix_valve2_state.addFeature(HA_FEATURE_ICON,"mdi:pipe-valve");
+  mix_valve2_openLevel.addFeature(HA_FEATURE_DEVICE_CLASS, "POWER_FACTOR");
+  mix_valve2_openLevel.addFeature(HA_FEATURE_ICON,"mdi:valve");
+  mix_valve2_temp_set.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  mix_valve2_temp_set.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  mix_valve2_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
+  mix_valve2_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+
+  HAMQTT.addEntity(device_time);
+  HAMQTT.addEntity(ext_temp);
+  HAMQTT.addEntity(co_temp);
+  HAMQTT.addEntity(co_temp_ret);
+  HAMQTT.addEntity(cwu_temp);
+  HAMQTT.addEntity(cwu_temp_ret);
+  HAMQTT.addEntity(cwu_temp_set);
+  HAMQTT.addEntity(pump_state_co);
+  HAMQTT.addEntity(pump_state_cwu);
+
+  HAMQTT.addEntity(mix_valve1_state);
+  HAMQTT.addEntity(mix_valve1_openLevel);
+  HAMQTT.addEntity(mix_valve1_type);
+  HAMQTT.addEntity(mix_valve1_temp_set);
+  HAMQTT.addEntity(mix_valve1_temp);
+
+  HAMQTT.addEntity(mix_valve2_state);
+  HAMQTT.addEntity(mix_valve2_openLevel);
+  HAMQTT.addEntity(mix_valve2_type);
+  HAMQTT.addEntity(mix_valve2_temp_set);
+  HAMQTT.addEntity(mix_valve2_temp);
+
+  HAMQTT.addEntity(pump_mode);
 }
 
+bool MQTTpublish(struct SensorsData* SensorsCurrentValues)
+{
+  if (WiFi.status() == WL_CONNECTED && !HAMQTT.connected())
+  {
+    if (HAMQTT.connect(DEVICE_BOARD_NAME, mqtt_user, mqtt_pass))
+      Serial.println("Connected to MQTT");
+    else
+    {
+      Serial.println("Failed to connect to MQTT");
+      return(false);
+    }
+  }
+  device_time.setState(SensorsCurrentValues->device_time);
+  ext_temp.setState(SensorsCurrentValues->ext_temp);
+  co_temp.setState(SensorsCurrentValues->co_temp);
+  co_temp_ret.setState(SensorsCurrentValues->co_temp_ret);
+  cwu_temp.setState(SensorsCurrentValues->cwu_temp);
+  cwu_temp_ret.setState(SensorsCurrentValues->cwu_temp_ret);
+  cwu_temp_set.setState(SensorsCurrentValues->cwu_temp_set);
+  pump_state_co.setState(SensorsCurrentValues->pump_state_co);
+  pump_state_cwu.setState(SensorsCurrentValues->pump_state_cwu);
+
+  mix_valve1_state.setState(SensorsCurrentValues->valveData[0].mix_valve_state);
+  mix_valve1_openLevel.setState(SensorsCurrentValues->valveData[0].mix_valve_openLevel);
+  mix_valve1_type.setState(SensorsCurrentValues->valveData[0].mix_valve_type);
+  mix_valve1_temp_set.setState(SensorsCurrentValues->valveData[0].mix_valve_temp_set);
+  mix_valve1_temp.setState(SensorsCurrentValues->valveData[0].mix_valve_temp);
+
+  mix_valve2_state.setState(SensorsCurrentValues->valveData[1].mix_valve_state);
+  mix_valve2_openLevel.setState(SensorsCurrentValues->valveData[1].mix_valve_openLevel);
+  mix_valve2_type.setState(SensorsCurrentValues->valveData[1].mix_valve_type);
+  mix_valve2_temp_set.setState(SensorsCurrentValues->valveData[1].mix_valve_temp_set);
+  mix_valve2_temp.setState(SensorsCurrentValues->valveData[1].mix_valve_temp);
+
+  pump_mode.setState(pump_mode_options[(int)SensorsCurrentValues->pump_mode]);
+
+  return(true);
+}
+
+/*
 bool MQTTMessageCallback()
 {
   char MessageBuf[16];
@@ -58,7 +165,7 @@ bool MQTTMessageCallback()
   Serial.println("Publishing MQTT messages...");
   //mqtt.connect(DEVICE_BOARD_NAME, mqtt_user, mqtt_pass);
   if (mqtt.connected()) {
-/*
+
     sprintf(MessageBuf, "%d", int(SetPoint));
     mqtt.publish(MQTTTSetTopicState, MessageBuf, false);
 
@@ -73,7 +180,7 @@ bool MQTTMessageCallback()
 
     sprintf(MessageBuf, "%d", int(RoomTemperature));
     mqtt.publish(MQTTTrTopicState, MessageBuf, false);
-*/
+
     Serial.println("Done");
   
   }
@@ -88,8 +195,9 @@ bool MQTTMessageCallback()
   //mqtt.disconnect();
   return(true);
 }
+*/
 
 void MQTTLoop()
 {
-  mqtt.loop();
+  HAMQTT.loop();
 }

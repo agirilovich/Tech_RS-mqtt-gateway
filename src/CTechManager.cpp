@@ -31,166 +31,80 @@ void CTechManager::Update()
     }
 }
 
-void CTechManager::GetStateJson(Print& output, bool raw)
+float CTechManager::GetState(uint16_t value, int valve)
 {
-    json.clear();
-
-    if (raw)
-        json["device_time"] = deviceState.device_time;
-    else
-        json["device_time"] = GetTime((int16_t)deviceState.device_time);
-
-    json["device_day"] = deviceState.device_day;
-
-    if (raw)
+    int data = 0;
+    switch(value)
     {
-        json["fumes_temp"]          = deviceState.fumes_temp;
-        json["ext_temp"]            = deviceState.external_temp;
+        case(ETechCommand::VALVE_STATE):
+            data = deviceState.valveData[valve].state;
+            break;
 
-        json["co_temp"]             = deviceState.co_temp;
-        json["co_temp_set"]         = deviceState.co_temp_set;
-        json["co_temp_adj"]         = deviceState.co_temp_adj;
-        json["co_min_max"]["min"]   = deviceState.co_min_max;
-        json["co_min_max"]["max"]   = deviceState.co_min_max;
+        case(ETechCommand::VALVE_TYPE):
+            data = deviceState.valveData[valve].type;
+            break;
+        
+        case(ETechCommand::VALVE_OPEN_LEVEL):
+            data = deviceState.valveData[valve].openLevel;
+            break;
 
-        json["cwu_temp"]            = deviceState.cwu_temp;
-        json["cwu_temp_ret"]        = deviceState.cwu_temp_ret;
-        json["cwu_temp_set"]        = deviceState.cwu_temp_set;
-        json["cwu_min_max"]["min"]  = deviceState.cwu_min_max;
-        json["cwu_min_max"]["max"]  = deviceState.cwu_min_max;
+        case(ETechCommand::VALVE_TEMP_SET):
+            data = deviceState.valveData[valve].temp_set;
+            break;
 
-        json["fuel_stock_level"]    = deviceState.fuel_stock_level;
-    }
-    else
-    {
-        json["fumes_temp"]          = GetTempMeasured((int16_t)deviceState.fumes_temp);
-        json["ext_temp"]            = GetTempMeasured((int16_t)deviceState.external_temp);
-
-        json["co_temp"]             = GetTempMeasured((int16_t)deviceState.co_temp);
-        json["co_temp_set"]         = GetTempSet((int16_t)deviceState.co_temp_set);
-        json["co_temp_adj"]         = GetTempSet((int16_t)deviceState.co_temp_adj);
-        json["co_min_max"]["min"]   = GetTempMin(deviceState.co_min_max);
-        json["co_min_max"]["max"]   = GetTempMax(deviceState.co_min_max);
-
-        json["cwu_temp"]            = GetTempMeasured((int16_t)deviceState.cwu_temp);
-        json["cwu_temp_ret"]        = GetTempMeasured((int16_t)deviceState.cwu_temp_ret);
-        json["cwu_temp_set"]        = GetTempSet((int16_t)deviceState.cwu_temp_set);
-        json["cwu_min_max"]["min"]  = GetTempMin(deviceState.cwu_min_max);
-        json["cwu_min_max"]["max"]  = GetTempMax(deviceState.cwu_min_max);
-
-        json["fuel_stock_level"]    = GetPercentPrecise(deviceState.fuel_stock_level);
-    }
-
-    json["fuel_stock_time"]     = deviceState.fuel_stock_time;
-
-    json["pump_mode"]           = deviceState.pump_mode;
-    json["pump_state_co"]       = deviceState.pump_state_co;
-    json["pump_state_cwu"]      = deviceState.pump_state_cwu;
-
-    json["fan_state"]           = deviceState.fan_state;
-    json["fan_speed"]           = deviceState.fan_speed;
-    
-    json["feeder_state"]        = deviceState.feeder_state;
-
-    if (raw)
-        json["feeder_temp"] = deviceState.feeder_temp;
-    else
-        json["feeder_temp"] = GetTempMeasured((int16_t)deviceState.feeder_temp);
-
-    JsonArray valves = json.createNestedArray("valves");
-
-    for (uint16_t i = 0; i < 4; i++)
-    {
-        JsonObject valve = valves.createNestedObject();
-
-        valve["address"] = deviceState.valveData[i].address;
-        valve["state"] = deviceState.valveData[i].state;
-        valve["openLevel"] = deviceState.valveData[i].openLevel;
-        valve["type"] = deviceState.valveData[i].type;
-
-        if (raw)
-        {
-            valve["temp_set"] = deviceState.valveData[i].temp_set;
-            valve["temp"] = deviceState.valveData[i].temp;
-            valve["min"] = deviceState.valveData[i].minMax;
-            valve["max"] = deviceState.valveData[i].minMax;
-        }
-        else 
-        {
-            valve["temp_set"] = GetTempSet((int16_t)deviceState.valveData[i].temp_set);
-            valve["temp"] = GetTempMeasured((int16_t)deviceState.valveData[i].temp);
-            valve["min"] = GetTempMax(deviceState.valveData[i].minMax);;
-            valve["max"] = GetTempMax(deviceState.valveData[i].minMax);
-        }
-    }
-
-    json["request_stamp"]        = requestStamp++;
-    json["device_type"]          = deviceState.device_type;
-
-    // Dump config.
-    json["cfg"]["address"] = ToHex(deviceAddress);
-    json["cfg"]["addressCheck"] = addressCheck ? "Y" : "N";
-    json["cfg"]["debugMode"] = debugMode ? "Y" : "N";
-    json["cfg"]["autoAck"] = autoAck ? "Y" : "N";
-
-    // Serialize unknown commands.
-    char sid[8];
-    char sval[8];
-    for (uint16_t i = 0; i < MAX_UNKNOWN_COMMANDS; i++)
-    {
-        if (deviceState.ucmd_id[i] == 0) break;
-
-        sniprintf(sid, sizeof(sid), "#%04x", deviceState.ucmd_id[i]);
-
-        if (raw)
-        {
-            json[sid] = deviceState.ucmd_data[i];
-        }
-        else
-        {
-            sniprintf(sval, sizeof(sval), "#%04x", deviceState.ucmd_data[i]);
-            json[sid] = sval;
-        }
-    }
-
-    serializeJson(json, output);
-    //serializeJsonPretty(json, Serial);
-}
-
-void CTechManager::GetStatsJson(Print& output, EStatsType type)
-{
-    StatsData* data = nullptr;
-    switch (type)
-    {
-        case(EStatsType::co):
-            data = &coStats;
-        break;
-
-        case(EStatsType::cwu):
-            data = &cwuStats;
-        break;
-
-        default:
-            data = &extStats;
+        case(ETechCommand::VALVE_TEMP):
+            data = deviceState.valveData[valve].temp / 10;
             break;
     }
+    return data;
+}
 
-    // Update json.
-    json.clear();
-    
-    uint16_t len = data->Count();
-    uint16_t readPtr = data->readPtr;
-    char buf[8];
-
-    for (uint16_t i = 0; i < len; i++)
+float CTechManager::GetState(uint16_t value)
+{
+    float data = 0;
+    switch(value)
     {
-        sniprintf(buf, sizeof(buf), "#%04x", data->buffer[readPtr]);
-        json.add(buf);
-        readPtr = (readPtr + 1) % STATS_DEPTH;
-    }
+        case(ETechCommand::DEVICE_TIME):
+            data = deviceState.device_time;
+            break;
 
-    serializeJson(json, output);
-    //serializeJson(json, Serial);
+        case(ETechCommand::EXTERNAL_TEMP):
+            data = deviceState.external_temp / 10;
+            break;
+
+        case(ETechCommand::CO_TEMP):
+            data = deviceState.co_temp / 10;
+            break;
+
+        case(ETechCommand::CO_TEMP_RET):
+            data = deviceState.co_temp / 10;
+            break;
+
+        case(ETechCommand::CWU_TEMP):
+            data = deviceState.cwu_temp /10;
+            break;
+        
+        case(ETechCommand::CWU_TEMP_RET):
+            data = deviceState.cwu_temp_ret / 10;
+            break;
+
+        case(ETechCommand::PUMP_STATE_CO):
+            data = deviceState.pump_state_co;
+            break;
+
+        case(ETechCommand::PUMP_STATE_CWU):
+            data = deviceState.pump_state_cwu;
+            break;
+
+        case(ETechCommand::PUMP_MODE):
+            data = deviceState.pump_mode;
+            break;
+        
+        case(ETechCommand::CWU_TEMP_SET):
+            data = deviceState.cwu_temp_set;
+            break;
+    }
+    return data;
 }
 
 void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)
@@ -628,46 +542,4 @@ void CTechManager::UpdateUnknownCommand(uint16_t id, uint16_t val)
             break;
         }
     }
-}
-
-char* CTechManager::GetTempMeasured(int16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%0.2f", value / 10.0);
-    return(value_string);
-}
-
-char* CTechManager::GetTempSet(int16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%d", value);
-    return(value_string);
-}
-
-char* CTechManager::GetTempMin(uint16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%d", value & 0xFF);
-    return(value_string);
-}
-
-char* CTechManager::GetTempMax(uint16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%d", (value >> 8) & 0xFF);
-    return(value_string);
-}
-
-char* CTechManager::GetPercentPrecise(uint16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%0.2f", value / 512.0);
-    return(value_string);
-}
-        
-char* CTechManager::GetTime(uint16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%02d:%02d", (value >> 8) & 0xFF, (value & 0xFF) );
-    return(value_string);
-}
-
-char* CTechManager::ToHex(uint16_t value)
-{
-    sniprintf(value_string, sizeof(value_string), "%02x", value);
-    return(value_string);
-}
+}  
