@@ -1,4 +1,4 @@
-#include "ArduinoJson.h"
+#include "Arduino.h"
 
 class CTechManager
 {
@@ -19,6 +19,7 @@ class CTechManager
             uint16_t type;
             uint16_t temp;
             uint16_t minMax;
+            uint16_t pump_state;
         };
 
         struct DeviceData
@@ -26,6 +27,8 @@ class CTechManager
             uint16_t device_type;
             uint16_t device_time;
             uint16_t device_day;
+            uint16_t device_model;
+            uint16_t device_state;
 
             uint16_t fumes_temp;
             uint16_t external_temp;
@@ -33,12 +36,12 @@ class CTechManager
             uint16_t co_temp;
             uint16_t co_min_max;
             uint16_t co_temp_set;
+            uint16_t co_temp_ret;
             uint16_t co_temp_adj;
             
             uint16_t cwu_temp;
             uint16_t cwu_min_max;
             uint16_t cwu_temp_set;
-            uint16_t cwu_temp_ret;
 
             uint16_t fuel_stock_level;
             uint16_t fuel_stock_time;
@@ -91,7 +94,6 @@ class CTechManager
 
         // Device state.
         DeviceData deviceState;
-        StaticJsonDocument<2048> json;
 
         // Internal utils.
         void ResetReader();
@@ -108,7 +110,6 @@ class CTechManager
         char* GetTempMax(uint16_t value);
         char* GetPercentPrecise(uint16_t value);
         char* GetTime(uint16_t value);
-        char* ToHex(uint16_t value);
 
         void UpdateUnknownCommand(uint16_t id, uint16_t val);
 
@@ -185,11 +186,14 @@ class CTechManager
             DEVICE_TYPE = 0x15a7,
             DEVICE_TIME = 0x1620,
             DEVICE_DAY = 0x1621,
+            DEVICE_MODEL = 0x16FF,
+            DEVICE_STATE = 0x157C,
 
             FUMES_TEMP = 0x15B7,
             EXTERNAL_TEMP = 0x1681,
             
             CO_TEMP = 0x157D,
+            CO_TEMP_RET = 0x16C1,
             CO_MIN_MAX = 0x169E,
             CO_TEMP_SET = 0x157E,
             CO_TEMP_ADJUSTMENT = 0x1684, // *** new value.
@@ -197,7 +201,6 @@ class CTechManager
             CWU_TEMP = 0x166E,
             CWU_MIN_MAX = 0x169F,
             CWU_TEMP_SET = 0x1616,
-            CWU_TEMP_RET = 0x16C1,
             
             FUEL_STOCK_LEVEL = 0x16F1,
             FUEL_STOCK_TIME = 0x16F2,
@@ -231,6 +234,7 @@ class CTechManager
             VALVE_TYPE = 0x1624,
             VALVE_TEMP = 0x1614,
             VALVE_MIN_MAX = 0x16C3,
+            VALVE_PUMP_STATE = 0x16B9,
 
             // Command set.
             SET_PUMP_MODE = 0x245,
@@ -243,13 +247,6 @@ class CTechManager
 
         };
 
-        enum EStatsType : uint8_t
-        {
-            co,
-            cwu,
-            ext
-        };
-
         // API
         CTechManager(uint16_t deviceAddress = ETechDeviceAddress::GSM);
 
@@ -258,8 +255,9 @@ class CTechManager
         void Update();
 
         void SendCommand(ETechCommand cmd, uint16_t value);
-        void GetStateJson(Print& output, bool raw = false);
-        void GetStatsJson(Print& output, EStatsType type);
+
+        float GetState(uint16_t value);
+        float GetState(uint16_t value, int valve);
 
         // Dev.
         void SetDebug(bool val) { debugMode = val; };

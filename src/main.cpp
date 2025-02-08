@@ -21,8 +21,6 @@
 #define RX_PULLUP 21
 #define TX_PULLUP 22
 
-hw_timer_t *Timer0_Cfg = NULL;
-
 #include "CTechManager.h"
 CTechManager techManager;
 
@@ -33,30 +31,39 @@ const int max_mqtt_attempts = 60;
 ulong SendStamp = 0;
 ulong SendDelay = 60 * 1000;
 
-/*
-void readRS()
+struct SensorsData readRS()
 {
-  Print* response = nullptr;
-  //techManager.SendCommand((CTechManager::ETechCommand)cmd, val);
-  techManager.GetStateJson(*response, true);
-  Serial.println("");
-;  //techManager.GetStatsJson(*response, CTechManager::EStatsType::co);
-  //techManager.GetStatsJson(*response, CTechManager::EStatsType::cwu);
-  //techManager.GetStatsJson(*response, CTechManager::EStatsType::ext);
-  //Serial.print(response->readString());
-}
-*/
+  struct SensorsData SensorsCurrentValues;
 
-void publishStateJsonMQTT() {
-  digitalWrite(LED_BUILTIN, HIGH);
-  if (MQTTMessageCallback())
+  //int dev_hours = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
+  //int dev_minutes = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
+  //setTime(dev_hours, dev_minutes, 0, day(now()), month(now()), year(now()));
+
+  SensorsCurrentValues.device_time = techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME);
+  SensorsCurrentValues.device_state = techManager.GetState(CTechManager::ETechCommand::DEVICE_STATE);
+  SensorsCurrentValues.ext_temp = techManager.GetState(CTechManager::ETechCommand::EXTERNAL_TEMP);
+  SensorsCurrentValues.co_temp = techManager.GetState(CTechManager::ETechCommand::CO_TEMP);
+  SensorsCurrentValues.co_temp_ret = techManager.GetState(CTechManager::ETechCommand::CO_TEMP_RET);
+  SensorsCurrentValues.cwu_temp = techManager.GetState(CTechManager::ETechCommand::CWU_TEMP);
+  SensorsCurrentValues.cwu_temp_set = techManager.GetState(CTechManager::ETechCommand::CWU_TEMP_SET);
+  SensorsCurrentValues.pump_state_co = techManager.GetState(CTechManager::ETechCommand::PUMP_STATE_CO);
+  SensorsCurrentValues.pump_state_cwu = techManager.GetState(CTechManager::ETechCommand::PUMP_STATE_CWU);
+
+  for (int i = 0; i <= 1; i++)
   {
-    mqtt_num_attempts = 0;
-  } else {
-    mqtt_num_attempts++;
+    SensorsCurrentValues.valveData[i].mix_valve_state = techManager.GetState(CTechManager::ETechCommand::VALVE_STATE, i + 1);
+    SensorsCurrentValues.valveData[i].mix_valve_openLevel = techManager.GetState(CTechManager::ETechCommand::VALVE_OPEN_LEVEL, i + 1);
+    SensorsCurrentValues.valveData[i].mix_valve_type = techManager.GetState(CTechManager::ETechCommand::VALVE_TYPE, i + 1);
+    SensorsCurrentValues.valveData[i].mix_valve_temp_set = techManager.GetState(CTechManager::ETechCommand::VALVE_TEMP_SET, i + 1);
+    SensorsCurrentValues.valveData[i].mix_valve_temp = techManager.GetState(CTechManager::ETechCommand::VALVE_TEMP, i + 1);
+    SensorsCurrentValues.valveData[i].mix_valve_pump = techManager.GetState(CTechManager::ETechCommand::VALVE_PUMP_STATE, i + 1);
   }
-  digitalWrite(LED_BUILTIN, LOW);
+ 
+  SensorsCurrentValues.pump_mode = techManager.GetState(CTechManager::ETechCommand::PUMP_MODE);
+    
+  return SensorsCurrentValues;
 }
+
 
 void setup()
 {
@@ -101,6 +108,8 @@ void setup()
 
   Serial.print("Start WiFi on ");
   Serial.println(DEVICE_BOARD_NAME);
+
+  initMQTT();
   
   initializeWiFi(DEVICE_HOSTNAME);
   
@@ -108,8 +117,6 @@ void setup()
 
   // you're connected now, so print out the data
   printWifiStatus();
-
-  initMQTT();
 
   // Start tech manager.
   Serial2.begin(9600, SERIAL_8N1, 16, 17, true); // Invers TTL for Serial2 port on some ESP32 boards
@@ -157,8 +164,22 @@ void loop()
   if (millis() - SendStamp > SendDelay)
   {
     SendStamp = millis();
-    //readRS();
-    publishStateJsonMQTT();
+    struct SensorsData SensorsCurrentValues;
+    Serial.print("Read and Set sensors values...");
+    SensorsCurrentValues = readRS();
+    Serial.println("Done.");
+    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.print("Publish sensors values via MQTT....");
+    if (MQTTpublish(&SensorsCurrentValues))
+    {
+      mqtt_num_attempts = 0;
+      Serial.println("Done");
+    } else {
+    mqtt_num_attempts++;
+    Serial.println("Failed. Skip the cicle.");
+    }
+    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("======================================================================");
   }
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
