@@ -36,6 +36,7 @@ class CTechManager
             uint16_t co_temp;
             uint16_t co_min_max;
             uint16_t co_temp_set;
+            uint16_t co_temp_ret;
             uint16_t co_temp_adj;
             
             uint16_t cwu_temp;
