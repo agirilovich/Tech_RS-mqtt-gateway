@@ -528,11 +528,13 @@ void CTechManager::ProcessPacket()
             break;
 
             default: // Dump unknown commands.
+            /*
                 Serial.print("Unknown command. ");
                 Serial.print("ID: ");
                 Serial.print(cmd_id);
                 Serial.print(",   val: ");
                 Serial.println(cmd_val);
+            */
                 UpdateUnknownCommand(cmd_id, cmd_val);
             break;
         }

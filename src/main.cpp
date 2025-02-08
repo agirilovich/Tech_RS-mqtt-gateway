@@ -47,10 +47,10 @@ struct SensorsData readRS()
     timeinfo.tm_hour = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
     timeinfo.tm_min = (int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
     time_t device_time = mktime(&timeinfo);
-    SensorsCurrentValues.device_time = time(&device_time);
+    //SensorsCurrentValues.device_time = time(&device_time);
+    SensorsCurrentValues.device_time = device_time;
   }
 
-  SensorsCurrentValues.device_time = techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME);
   SensorsCurrentValues.device_state = techManager.GetState(CTechManager::ETechCommand::DEVICE_STATE);
   SensorsCurrentValues.ext_temp = techManager.GetState(CTechManager::ETechCommand::EXTERNAL_TEMP);
   SensorsCurrentValues.co_temp = techManager.GetState(CTechManager::ETechCommand::CO_TEMP);
