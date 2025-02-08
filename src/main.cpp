@@ -40,7 +40,7 @@ struct SensorsData readRS()
   //setTime(dev_hours, dev_minutes, 0, day(now()), month(now()), year(now()));
 
   SensorsCurrentValues.device_time = techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME);
-
+  SensorsCurrentValues.device_state = techManager.GetState(CTechManager::ETechCommand::DEVICE_STATE);
   SensorsCurrentValues.ext_temp = techManager.GetState(CTechManager::ETechCommand::EXTERNAL_TEMP);
   SensorsCurrentValues.co_temp = techManager.GetState(CTechManager::ETechCommand::CO_TEMP);
   SensorsCurrentValues.co_temp_ret = techManager.GetState(CTechManager::ETechCommand::CO_TEMP_RET);

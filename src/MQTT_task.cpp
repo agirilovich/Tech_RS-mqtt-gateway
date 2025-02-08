@@ -17,6 +17,7 @@ HADevice ha_device(DEVICE_BOARD_NAME, DEVICE_BOARD_NAME, "1.0");
 
 // Define Home Assistant sensors
 HASensorNumeric device_time = HASensorNumeric("device_time", "Device Time", ha_device);
+HASensorNumeric device_state = HASensorNumeric("device_state", "Device State", ha_device);
 HASensorNumeric ext_temp = HASensorNumeric("ext_temp", "Temperature outside", ha_device, "С");
 HASensorNumeric co_temp = HASensorNumeric("co_temp", "Temperature CO", ha_device, "С");
 HASensorNumeric co_temp_ret = HASensorNumeric("co_temp_ret", "Temperature return CO", ha_device, "С");
@@ -56,7 +57,7 @@ HASelect pump_mode = HASelect("pump_mode", "Mode", ha_device, OPTIONS_COUNT, pum
 void initMQTT() {
   //Initialise MQTT autodiscovery topic and sensor
   mqtt.setServer(mqtt_host, mqtt_port);
-  HAMQTT.begin(mqtt, 22);
+  HAMQTT.begin(mqtt, 23);
 
   device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
   device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
@@ -100,6 +101,7 @@ void initMQTT() {
   mix_valve2_pump_state.addFeature(HA_FEATURE_ICON,"mdi:pump");
 
   HAMQTT.addEntity(device_time);
+  HAMQTT.addEntity(device_state);
   HAMQTT.addEntity(ext_temp);
   HAMQTT.addEntity(co_temp);
   HAMQTT.addEntity(co_temp_ret);
@@ -139,6 +141,7 @@ bool MQTTpublish(struct SensorsData* SensorsCurrentValues)
     }
   }
   device_time.setState(SensorsCurrentValues->device_time);
+  device_state.setState(SensorsCurrentValues->device_state);
   ext_temp.setState(SensorsCurrentValues->ext_temp);
   co_temp.setState(SensorsCurrentValues->co_temp);
   co_temp_ret.setState(SensorsCurrentValues->co_temp_ret);

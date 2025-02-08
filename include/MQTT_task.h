@@ -12,8 +12,6 @@
 #undef HA_TOPIC_HEAD
 #define HA_TOPIC_HEAD MQTT_GENERAL_PREFIX
 
-#define MQTT_CONFIG_PREFIX "homeassistant"
-
 struct ValveData
 {
     float mix_valve_state;
@@ -27,6 +25,7 @@ struct ValveData
 struct SensorsData
 {
   float device_time;
+  float device_state;
   float ext_temp;
   float co_temp;
   float co_temp_ret;

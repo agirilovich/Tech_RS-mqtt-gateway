@@ -75,6 +75,10 @@ float CTechManager::GetState(uint16_t value)
         case(ETechCommand::EXTERNAL_TEMP):
             data = deviceState.external_temp / 10;
             break;
+        
+        case(ETechCommand::DEVICE_STATE):
+            data = deviceState.device_state;
+            break;
 
         case(ETechCommand::CO_TEMP):
             data = deviceState.co_temp / 10;
@@ -356,6 +360,10 @@ void CTechManager::ProcessPacket()
 
             case(ETechCommand::DEVICE_DAY): // 0x1621
                 deviceState.device_day =  cmd_val;
+            break;
+
+            case(ETechCommand::DEVICE_STATE): // 0x01F4
+                deviceState.device_state =  cmd_val;
             break;
 
             case(ETechCommand::FUMES_TEMP): // 0x15B7

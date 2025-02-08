@@ -28,6 +28,7 @@ class CTechManager
             uint16_t device_time;
             uint16_t device_day;
             uint16_t device_model;
+            uint16_t device_state;
 
             uint16_t fumes_temp;
             uint16_t external_temp;
@@ -186,6 +187,7 @@ class CTechManager
             DEVICE_TIME = 0x1620,
             DEVICE_DAY = 0x1621,
             DEVICE_MODEL = 0x16FF,
+            DEVICE_STATE = 0x01F4,
 
             FUMES_TEMP = 0x15B7,
             EXTERNAL_TEMP = 0x1681,
