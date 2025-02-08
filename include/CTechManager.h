@@ -19,6 +19,7 @@ class CTechManager
             uint16_t type;
             uint16_t temp;
             uint16_t minMax;
+            uint16_t pump_state;
         };
 
         struct DeviceData
@@ -26,6 +27,7 @@ class CTechManager
             uint16_t device_type;
             uint16_t device_time;
             uint16_t device_day;
+            uint16_t device_model;
 
             uint16_t fumes_temp;
             uint16_t external_temp;
@@ -183,6 +185,7 @@ class CTechManager
             DEVICE_TYPE = 0x15a7,
             DEVICE_TIME = 0x1620,
             DEVICE_DAY = 0x1621,
+            DEVICE_MODEL = 0x16FF,
 
             FUMES_TEMP = 0x15B7,
             EXTERNAL_TEMP = 0x1681,
@@ -230,6 +233,7 @@ class CTechManager
             VALVE_TYPE = 0x1624,
             VALVE_TEMP = 0x1614,
             VALVE_MIN_MAX = 0x16C3,
+            VALVE_PUMP_STATE = 0x16B9,
 
             // Command set.
             SET_PUMP_MODE = 0x245,

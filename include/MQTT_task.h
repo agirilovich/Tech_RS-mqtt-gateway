@@ -21,6 +21,7 @@ struct ValveData
     float mix_valve_type;
     float mix_valve_temp_set;
     float mix_valve_temp;
+    float mix_valve_pump;
 };
 
 struct SensorsData

@@ -32,6 +32,7 @@ HASensorNumeric mix_valve1_openLevel = HASensorNumeric("mix_valve1_openLevel", "
 HASensorNumeric mix_valve1_type = HASensorNumeric("mix_valve1_type", "Mix Valve 1 Type", ha_device);
 HASensorNumeric mix_valve1_temp_set = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature set", ha_device, "С");
 HASensorNumeric mix_valve1_temp = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature", ha_device, "С");
+HASensorBinary mix_valve1_pump_state = HASensorBinary("mix_valve1_pump_state", "Mix Valve 1 pump state", ha_device);
 
 // Valve 2
 HASensorBinary mix_valve2_state = HASensorBinary("mix_valve2_state", "Mix Valve 2 state", ha_device);
@@ -39,6 +40,7 @@ HASensorNumeric mix_valve2_openLevel = HASensorNumeric("mix_valve2_openLevel", "
 HASensorNumeric mix_valve2_type = HASensorNumeric("mix_valve2_type", "Mix Valve 2 Type", ha_device);
 HASensorNumeric mix_valve2_temp_set = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature set", ha_device, "С");
 HASensorNumeric mix_valve2_temp = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature", ha_device, "С");
+HASensorBinary mix_valve2_pump_state = HASensorBinary("mix_valve2_pump_state", "Mix Valve 2 pump state", ha_device);
 
 // Mode
 #define OPTIONS_COUNT 4
@@ -54,7 +56,7 @@ HASelect pump_mode = HASelect("pump_mode", "Mode", ha_device, OPTIONS_COUNT, pum
 void initMQTT() {
   //Initialise MQTT autodiscovery topic and sensor
   mqtt.setServer(mqtt_host, mqtt_port);
-  HAMQTT.begin(mqtt, 20);
+  HAMQTT.begin(mqtt, 22);
 
   device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
   device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
@@ -83,6 +85,8 @@ void initMQTT() {
   mix_valve1_temp_set.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
   mix_valve1_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
   mix_valve1_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  mix_valve1_pump_state.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
+  mix_valve1_pump_state.addFeature(HA_FEATURE_ICON,"mdi:pump");
 
   mix_valve2_state.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
   mix_valve2_state.addFeature(HA_FEATURE_ICON,"mdi:pipe-valve");
@@ -92,6 +96,8 @@ void initMQTT() {
   mix_valve2_temp_set.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
   mix_valve2_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
   mix_valve2_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
+  mix_valve2_pump_state.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
+  mix_valve2_pump_state.addFeature(HA_FEATURE_ICON,"mdi:pump");
 
   HAMQTT.addEntity(device_time);
   HAMQTT.addEntity(ext_temp);
@@ -108,12 +114,14 @@ void initMQTT() {
   HAMQTT.addEntity(mix_valve1_type);
   HAMQTT.addEntity(mix_valve1_temp_set);
   HAMQTT.addEntity(mix_valve1_temp);
+  HAMQTT.addEntity(mix_valve1_pump_state);
 
   HAMQTT.addEntity(mix_valve2_state);
   HAMQTT.addEntity(mix_valve2_openLevel);
   HAMQTT.addEntity(mix_valve2_type);
   HAMQTT.addEntity(mix_valve2_temp_set);
   HAMQTT.addEntity(mix_valve2_temp);
+  HAMQTT.addEntity(mix_valve2_pump_state);
 
   HAMQTT.addEntity(pump_mode);
 }
@@ -145,12 +153,14 @@ bool MQTTpublish(struct SensorsData* SensorsCurrentValues)
   mix_valve1_type.setState(SensorsCurrentValues->valveData[0].mix_valve_type);
   mix_valve1_temp_set.setState(SensorsCurrentValues->valveData[0].mix_valve_temp_set);
   mix_valve1_temp.setState(SensorsCurrentValues->valveData[0].mix_valve_temp);
+  mix_valve1_pump_state.setState(SensorsCurrentValues->valveData[0].mix_valve_pump);
 
   mix_valve2_state.setState(SensorsCurrentValues->valveData[1].mix_valve_state);
   mix_valve2_openLevel.setState(SensorsCurrentValues->valveData[1].mix_valve_openLevel);
   mix_valve2_type.setState(SensorsCurrentValues->valveData[1].mix_valve_type);
   mix_valve2_temp_set.setState(SensorsCurrentValues->valveData[1].mix_valve_temp_set);
   mix_valve2_temp.setState(SensorsCurrentValues->valveData[1].mix_valve_temp);
+  mix_valve2_pump_state.setState(SensorsCurrentValues->valveData[0].mix_valve_pump);
 
   pump_mode.setState(pump_mode_options[(int)SensorsCurrentValues->pump_mode]);
 

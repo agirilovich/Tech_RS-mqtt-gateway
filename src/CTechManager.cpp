@@ -55,6 +55,10 @@ float CTechManager::GetState(uint16_t value, int valve)
         case(ETechCommand::VALVE_TEMP):
             data = deviceState.valveData[valve].temp / 10;
             break;
+
+        case(ETechCommand::VALVE_PUMP_STATE):
+            data = deviceState.valveData[valve].pump_state;
+            break;
     }
     return data;
 }
@@ -342,6 +346,10 @@ void CTechManager::ProcessPacket()
                 deviceState.device_type = cmd_val;
             break;
 
+            case(ETechCommand::DEVICE_MODEL): // 0x16ff
+                deviceState.device_model = cmd_val;
+            break;
+
             case(ETechCommand::DEVICE_TIME): // 0x1620
                 deviceState.device_time =  cmd_val;
             break;
@@ -484,6 +492,10 @@ void CTechManager::ProcessPacket()
 
             case(ETechCommand::VALVE_OPEN_LEVEL): // 0x15AC
                 deviceState.valveData[currentValveSet].openLevel = cmd_val;
+            break;
+
+            case(ETechCommand::VALVE_PUMP_STATE): // 0x16B9
+                deviceState.valveData[currentValveSet].pump_state = cmd_val;
             break;
 
             case(ETechCommand::VALVE_TYPE): // 0x1624

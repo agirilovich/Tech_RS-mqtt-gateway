@@ -57,6 +57,7 @@ struct SensorsData readRS()
     SensorsCurrentValues.valveData[i].mix_valve_type = techManager.GetState(CTechManager::ETechCommand::VALVE_TYPE, i + 1);
     SensorsCurrentValues.valveData[i].mix_valve_temp_set = techManager.GetState(CTechManager::ETechCommand::VALVE_TEMP_SET, i + 1);
     SensorsCurrentValues.valveData[i].mix_valve_temp = techManager.GetState(CTechManager::ETechCommand::VALVE_TEMP, i + 1);
+    SensorsCurrentValues.valveData[i].mix_valve_pump = techManager.GetState(CTechManager::ETechCommand::VALVE_PUMP_STATE, i + 1);
   }
  
   SensorsCurrentValues.pump_mode = techManager.GetState(CTechManager::ETechCommand::PUMP_MODE);
