@@ -30,7 +30,6 @@ struct SensorsData
   float co_temp;
   float co_temp_ret;
   float cwu_temp;
-  float cwu_temp_ret;
   float cwu_temp_set;
   float pump_state_co;
   float pump_state_cwu;

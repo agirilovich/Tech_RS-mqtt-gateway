@@ -57,7 +57,7 @@ HASelect pump_mode = HASelect("pump_mode", "Mode", ha_device, OPTIONS_COUNT, pum
 void initMQTT() {
   //Initialise MQTT autodiscovery topic and sensor
   mqtt.setServer(mqtt_host, mqtt_port);
-  HAMQTT.begin(mqtt, 23);
+  HAMQTT.begin(mqtt, 22);
 
   device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
   device_time.addFeature(HA_FEATURE_DEVICE_CLASS, "TIMESTAMP");
@@ -69,8 +69,6 @@ void initMQTT() {
   co_temp_ret.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
   cwu_temp.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
   cwu_temp.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
-  cwu_temp_ret.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
-  cwu_temp_ret.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
   cwu_temp_set.addFeature(HA_FEATURE_DEVICE_CLASS, "TEMPERATURE");
   cwu_temp_set.addFeature(HA_FEATURE_ICON,"mdi:water-thermometer");
   pump_state_co.addFeature(HA_FEATURE_DEVICE_CLASS, "HEAT");
@@ -106,7 +104,6 @@ void initMQTT() {
   HAMQTT.addEntity(co_temp);
   HAMQTT.addEntity(co_temp_ret);
   HAMQTT.addEntity(cwu_temp);
-  HAMQTT.addEntity(cwu_temp_ret);
   HAMQTT.addEntity(cwu_temp_set);
   HAMQTT.addEntity(pump_state_co);
   HAMQTT.addEntity(pump_state_cwu);
@@ -146,7 +143,6 @@ bool MQTTpublish(struct SensorsData* SensorsCurrentValues)
   co_temp.setState(SensorsCurrentValues->co_temp);
   co_temp_ret.setState(SensorsCurrentValues->co_temp_ret);
   cwu_temp.setState(SensorsCurrentValues->cwu_temp);
-  cwu_temp_ret.setState(SensorsCurrentValues->cwu_temp_ret);
   cwu_temp_set.setState(SensorsCurrentValues->cwu_temp_set);
   pump_state_co.setState(SensorsCurrentValues->pump_state_co);
   pump_state_cwu.setState(SensorsCurrentValues->pump_state_cwu);

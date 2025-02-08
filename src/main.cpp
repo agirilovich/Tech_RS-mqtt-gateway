@@ -45,7 +45,6 @@ struct SensorsData readRS()
   SensorsCurrentValues.co_temp = techManager.GetState(CTechManager::ETechCommand::CO_TEMP);
   SensorsCurrentValues.co_temp_ret = techManager.GetState(CTechManager::ETechCommand::CO_TEMP_RET);
   SensorsCurrentValues.cwu_temp = techManager.GetState(CTechManager::ETechCommand::CWU_TEMP);
-  SensorsCurrentValues.cwu_temp_ret = techManager.GetState(CTechManager::ETechCommand::CWU_TEMP_RET);
   SensorsCurrentValues.cwu_temp_set = techManager.GetState(CTechManager::ETechCommand::CWU_TEMP_SET);
   SensorsCurrentValues.pump_state_co = techManager.GetState(CTechManager::ETechCommand::PUMP_STATE_CO);
   SensorsCurrentValues.pump_state_cwu = techManager.GetState(CTechManager::ETechCommand::PUMP_STATE_CWU);

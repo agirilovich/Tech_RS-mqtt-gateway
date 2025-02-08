@@ -41,7 +41,6 @@ class CTechManager
             uint16_t cwu_temp;
             uint16_t cwu_min_max;
             uint16_t cwu_temp_set;
-            uint16_t cwu_temp_ret;
 
             uint16_t fuel_stock_level;
             uint16_t fuel_stock_time;
@@ -193,7 +192,7 @@ class CTechManager
             EXTERNAL_TEMP = 0x1681,
             
             CO_TEMP = 0x157D,
-            CO_TEMP_RET = 0x156D,
+            CO_TEMP_RET = 0x16C1,
             CO_MIN_MAX = 0x169E,
             CO_TEMP_SET = 0x157E,
             CO_TEMP_ADJUSTMENT = 0x1684, // *** new value.
@@ -201,7 +200,6 @@ class CTechManager
             CWU_TEMP = 0x166E,
             CWU_MIN_MAX = 0x169F,
             CWU_TEMP_SET = 0x1616,
-            CWU_TEMP_RET = 0x16C1,
             
             FUEL_STOCK_LEVEL = 0x16F1,
             FUEL_STOCK_TIME = 0x16F2,

@@ -85,17 +85,13 @@ float CTechManager::GetState(uint16_t value)
             break;
 
         case(ETechCommand::CO_TEMP_RET):
-            data = deviceState.co_temp / 10;
+            data = deviceState.co_temp_ret / 10;
             break;
 
         case(ETechCommand::CWU_TEMP):
             data = deviceState.cwu_temp /10;
             break;
         
-        case(ETechCommand::CWU_TEMP_RET):
-            data = deviceState.cwu_temp_ret / 10;
-            break;
-
         case(ETechCommand::PUMP_STATE_CO):
             data = deviceState.pump_state_co;
             break;
@@ -392,6 +388,10 @@ void CTechManager::ProcessPacket()
 
             break;
 
+            case(ETechCommand::CO_TEMP_RET): // 0x16C1
+                deviceState.co_temp_ret =  cmd_val;
+            break;
+
             case(ETechCommand::CO_MIN_MAX): // 0x169E
                 deviceState.co_min_max =  cmd_val;
             break;
@@ -420,10 +420,6 @@ void CTechManager::ProcessPacket()
 
             case(ETechCommand::CWU_TEMP_SET): // 0x1616
                 deviceState.cwu_temp_set =  cmd_val;
-            break;
-
-            case(ETechCommand::CWU_TEMP_RET): // 0x16C1
-                deviceState.cwu_temp_ret =  cmd_val;
             break;
 
             case(ETechCommand::FUEL_STOCK_LEVEL): // 0x16F1
