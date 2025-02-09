@@ -30,10 +30,10 @@ const int max_mqtt_attempts = 60;
 
 
 ulong SendStamp = 0;
-ulong SendDelay = 60 * 1000;
+ulong SendDelay = 60 * 1000 + 1;  // each 60 sec
 
 ulong DateTimeSetStamp = 0;
-ulong DateTimeSetDelay = 2 * 60 * 1000 + 5;
+ulong DateTimeSetDelay = 5 * 60 * 60 * 1000 + 5; // each 5 hours
 
 struct SensorsData readRS()
 {
@@ -85,8 +85,8 @@ void UpdateDeviceTime()
   } else {
     int hour = (int)timeinfo.tm_hour;
     int min = (int)timeinfo.tm_min;
-    techManager.SendCommand(CTechManager::ETechCommand::REG_TIME, (( hour << 8  ) | min & 0x00FF ));
-    techManager.SendCommand(CTechManager::ETechCommand::REG_DAY, timeinfo.tm_wday);
+    techManager.SendCommand(CTechManager::ETechCommand::SET_REG_TIME, (( hour << 8  ) | min & 0x00FF ));
+    techManager.SendCommand(CTechManager::ETechCommand::SET_REG_DAY, timeinfo.tm_wday);
   }
 }
 
