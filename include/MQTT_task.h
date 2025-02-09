@@ -24,7 +24,7 @@ struct ValveData
 
 struct SensorsData
 {
-  float device_time;
+  char device_time[32];
   float device_state;
   float ext_temp;
   float co_temp;

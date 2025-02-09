@@ -9,6 +9,7 @@
 #include "controlWiFi.h"
 
 #include "MQTT_task.h"
+#include <Time.h>
 
 #include <esp_task_wdt.h>
 #define WDT_TIMEOUT 60
@@ -31,15 +32,24 @@ const int max_mqtt_attempts = 60;
 ulong SendStamp = 0;
 ulong SendDelay = 60 * 1000;
 
+ulong DateTimeSetStamp = 0;
+ulong DateTimeSetDelay = 5 * 60 * 1000;
+
 struct SensorsData readRS()
 {
   struct SensorsData SensorsCurrentValues;
+  struct tm timeinfo;
 
-  //int dev_hours = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
-  //int dev_minutes = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
-  //setTime(dev_hours, dev_minutes, 0, day(now()), month(now()), year(now()));
+  if(!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+  } else {
+    int device_hour = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
+    int device_min = (int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
+    //2023-08-22T22:46:28-0700
+    sprintf(SensorsCurrentValues.device_time, "%4d-%2d-%2dT%2d:%2d:%2d", int(timeinfo.tm_year), int(timeinfo.tm_mon), int(timeinfo.tm_mday), device_hour, device_min, 0);
+  }
 
-  SensorsCurrentValues.device_time = techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME);
   SensorsCurrentValues.device_state = techManager.GetState(CTechManager::ETechCommand::DEVICE_STATE);
   SensorsCurrentValues.ext_temp = techManager.GetState(CTechManager::ETechCommand::EXTERNAL_TEMP);
   SensorsCurrentValues.co_temp = techManager.GetState(CTechManager::ETechCommand::CO_TEMP);
@@ -62,6 +72,20 @@ struct SensorsData readRS()
   SensorsCurrentValues.pump_mode = techManager.GetState(CTechManager::ETechCommand::PUMP_MODE);
     
   return SensorsCurrentValues;
+}
+
+void UpdateDeviceTime()
+{
+  struct tm timeinfo;
+  if(!getLocalTime(&timeinfo))
+  {
+    Serial.println("Failed to obtain time");
+  } else {
+    int hour = (int)timeinfo.tm_hour;
+    int min = (int)timeinfo.tm_min;
+    techManager.SendCommand(CTechManager::ETechCommand::REG_TIME, (( hour << 8  ) | min & 0x00FF ));
+    techManager.SendCommand(CTechManager::ETechCommand::REG_DAY, timeinfo.tm_wday);
+  }
 }
 
 
@@ -180,6 +204,12 @@ void loop()
     }
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("======================================================================");
+  }
+  if (millis() - DateTimeSetStamp > DateTimeSetDelay)
+  {
+    DateTimeSetStamp = millis();
+    Serial.println("Sync Day and Time in the Device");
+    UpdateDeviceTime();
   }
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)

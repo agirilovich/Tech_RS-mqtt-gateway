@@ -1,9 +1,19 @@
 #include "controlWiFi.h"
 
+#ifndef NTP_SERVER
+#  define NTP_SERVER "192.168.0.1"
+#endif
+
 //Import credentials from external file out of git repo
 #include <Credentials.h>
 const char *ssid = ssid_name;
 const char *password = ssid_password;
+
+void setTimezone(String timezone){
+  Serial.printf("  Setting Timezone to %s\n",timezone.c_str());
+  setenv("TZ",timezone.c_str(),1);  //  Now adjust the TZ.  Clock settings are adjusted to show the new local time
+  tzset();
+}
 
 void printWifiStatus()
 {
@@ -30,7 +40,6 @@ void initializeWiFi(const char *device_name)
   strcpy(fqdn, device_name);
   WiFi.setHostname(fqdn);
   WiFi.setAutoReconnect(true);
-
 }
 
 void establishWiFi()
@@ -54,4 +63,6 @@ void establishWiFi()
     Serial.print(".");
   }
   Serial.println("WiFi shield init done");
+  configTime(0, 0, NTP_SERVER);
+  setTimezone("CET-1CEST,M3.5.0,M10.5.0/3"); // Europe/Warsaw
 }

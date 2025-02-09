@@ -16,7 +16,7 @@ PubSubClient mqtt(client);
 HADevice ha_device(DEVICE_BOARD_NAME, DEVICE_BOARD_NAME, "1.0");
 
 // Define Home Assistant sensors
-HASensorNumeric device_time = HASensorNumeric("device_time", "Device Time", ha_device);
+HASensorText device_time = HASensorText("device_time", "Device Time", ha_device, 32);
 HASensorNumeric device_state = HASensorNumeric("device_state", "Device State", ha_device);
 HASensorNumeric ext_temp = HASensorNumeric("ext_temp", "Temperature outside", ha_device, "С");
 HASensorNumeric co_temp = HASensorNumeric("co_temp", "Temperature CO", ha_device, "С");
