@@ -73,7 +73,12 @@ float CTechManager::GetState(uint16_t value)
             break;
 
         case(ETechCommand::EXTERNAL_TEMP):
-            data = deviceState.external_temp / 10;
+            if(deviceState.external_temp >= 32768)
+            {
+                data = (deviceState.external_temp - 65536) / 10;
+            } else {
+                data = deviceState.external_temp / 10;
+            }
             break;
         
         case(ETechCommand::DEVICE_STATE):
