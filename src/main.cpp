@@ -33,7 +33,7 @@ ulong SendStamp = 0;
 ulong SendDelay = 60 * 1000;
 
 ulong DateTimeSetStamp = 0;
-ulong DateTimeSetDelay = 5 * 60 * 1000;
+ulong DateTimeSetDelay = 2 * 60 * 1000 + 5;
 
 struct SensorsData readRS()
 {
