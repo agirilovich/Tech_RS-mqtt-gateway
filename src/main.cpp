@@ -38,17 +38,18 @@ ulong DateTimeSetDelay = 5 * 60 * 1000;
 struct SensorsData readRS()
 {
   struct SensorsData SensorsCurrentValues;
-  struct tm timeinfo;
+  struct tm ntptimeinfo;
+  struct tm devicetimeinfo;
 
-  if(!getLocalTime(&timeinfo))
+  if(!getLocalTime(&ntptimeinfo))
   {
     Serial.println("Failed to obtain time");
   } else {
-    int device_hour = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
-    int device_min = (int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
+    devicetimeinfo = ntptimeinfo;
+    devicetimeinfo.tm_hour = ((int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) >> 8) & 0xFF;
+    devicetimeinfo.tm_min = (int)techManager.GetState(CTechManager::ETechCommand::DEVICE_TIME) & 0xFF;
     //2023-08-22T22:46:28-0700
-    strftime(SensorsCurrentValues.device_time, 32, "%Y-%m-%dT%H:%M:%S",&timeinfo);
-    //sprintf(SensorsCurrentValues.device_time, "%4d-%2d-%2dT%2d:%2d:%2d", int(timeinfo.tm_year), int(timeinfo.tm_mon), int(timeinfo.tm_mday), device_hour, device_min, 0);
+    strftime(SensorsCurrentValues.device_time, 32, "%Y-%m-%dT%H:%M:%S%z", &devicetimeinfo);
   }
 
   SensorsCurrentValues.device_state = techManager.GetState(CTechManager::ETechCommand::DEVICE_STATE);
