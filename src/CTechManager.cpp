@@ -118,11 +118,19 @@ float CTechManager::GetState(uint16_t value)
 
 void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)
 {
+    /*
+    Serial.print("Sending command:   ");
+    Serial.print(cmd);
+    Serial.print("   value:   ");
+    Serial.println(value);
+    */
+
     if (txSize >= (MAX_PACKET_SIZE - 4)) return;
 
     // Store command.
     txBuffer[txSize++] = cmd;
     txBuffer[txSize++] = value;
+    SendPacket();
 }
 
 
