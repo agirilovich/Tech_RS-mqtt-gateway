@@ -130,7 +130,6 @@ void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)
     // Store command.
     txBuffer[txSize++] = cmd;
     txBuffer[txSize++] = value;
-    SendPacket();
 }
 
 
