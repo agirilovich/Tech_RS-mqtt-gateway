@@ -18,12 +18,12 @@ HADevice ha_device(DEVICE_BOARD_NAME, DEVICE_BOARD_NAME, "1.0");
 // Define Home Assistant sensors
 HASensorText device_time = HASensorText("device_time", "Device Time", ha_device, 32);
 HASensorNumeric device_state = HASensorNumeric("device_state", "Device State", ha_device);
-HASensorNumeric ext_temp = HASensorNumeric("ext_temp", "Temperature outside", ha_device, "С");
-HASensorNumeric co_temp = HASensorNumeric("co_temp", "Temperature CO", ha_device, "С");
-HASensorNumeric co_temp_ret = HASensorNumeric("co_temp_ret", "Temperature return CO", ha_device, "С");
-HASensorNumeric cwu_temp = HASensorNumeric("cwu_temp", "Temperature CWU", ha_device, "С");
-HASensorNumeric cwu_temp_ret = HASensorNumeric("cwu_temp_ret", "Temperature return CWU", ha_device, "С");
-HASensorNumeric cwu_temp_set = HASensorNumeric("cwu_temp_set", "Temperature set CWU", ha_device, "С");
+HASensorNumeric ext_temp = HASensorNumeric("ext_temp", "Temperature outside", ha_device, "°C");
+HASensorNumeric co_temp = HASensorNumeric("co_temp", "Temperature CO", ha_device, "°C");
+HASensorNumeric co_temp_ret = HASensorNumeric("co_temp_ret", "Temperature return CO", ha_device, "°C");
+HASensorNumeric cwu_temp = HASensorNumeric("cwu_temp", "Temperature CWU", ha_device, "°C");
+HASensorNumeric cwu_temp_ret = HASensorNumeric("cwu_temp_ret", "Temperature return CWU", ha_device, "°C");
+HASensorNumeric cwu_temp_set = HASensorNumeric("cwu_temp_set", "Temperature set CWU", ha_device, "°C");
 HASensorBinary pump_state_co = HASensorBinary("pump_state_co", "CO pump state", ha_device);
 HASensorBinary pump_state_cwu = HASensorBinary("pump_state_cwu", "CWU pump state", ha_device);
 
@@ -31,16 +31,16 @@ HASensorBinary pump_state_cwu = HASensorBinary("pump_state_cwu", "CWU pump state
 HASensorBinary mix_valve1_state = HASensorBinary("mix_valve1_state", "Mix Valve 1 state", ha_device);
 HASensorNumeric mix_valve1_openLevel = HASensorNumeric("mix_valve1_openLevel", "Mix Valve 1 Open Level", ha_device, "%");
 HASensorNumeric mix_valve1_type = HASensorNumeric("mix_valve1_type", "Mix Valve 1 Type", ha_device);
-HASensorNumeric mix_valve1_temp_set = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature set", ha_device, "С");
-HASensorNumeric mix_valve1_temp = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature", ha_device, "С");
+HASensorNumeric mix_valve1_temp_set = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature set", ha_device, "°C");
+HASensorNumeric mix_valve1_temp = HASensorNumeric("mix_valve1_temp_set", "Mix Valve 1 Temperature", ha_device, "°C");
 HASensorBinary mix_valve1_pump_state = HASensorBinary("mix_valve1_pump_state", "Mix Valve 1 pump state", ha_device);
 
 // Valve 2
 HASensorBinary mix_valve2_state = HASensorBinary("mix_valve2_state", "Mix Valve 2 state", ha_device);
 HASensorNumeric mix_valve2_openLevel = HASensorNumeric("mix_valve2_openLevel", "Mix Valve 2 Open Level", ha_device, "%");
 HASensorNumeric mix_valve2_type = HASensorNumeric("mix_valve2_type", "Mix Valve 2 Type", ha_device);
-HASensorNumeric mix_valve2_temp_set = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature set", ha_device, "С");
-HASensorNumeric mix_valve2_temp = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature", ha_device, "С");
+HASensorNumeric mix_valve2_temp_set = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature set", ha_device, "°C");
+HASensorNumeric mix_valve2_temp = HASensorNumeric("mix_valve2_temp_set", "Mix Valve 2 Temperature", ha_device, "°C");
 HASensorBinary mix_valve2_pump_state = HASensorBinary("mix_valve2_pump_state", "Mix Valve 2 pump state", ha_device);
 
 // Mode
