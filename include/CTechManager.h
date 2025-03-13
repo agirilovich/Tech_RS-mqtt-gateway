@@ -121,39 +121,7 @@ class CTechManager
         bool debugMode = false;
         bool autoAck = true;
         bool addressCheck = true;
-
-        // Stats.
-        struct StatsData
-        {
-            uint16_t writePtr = 0;
-            uint16_t readPtr = 0;
-            uint16_t buffer[STATS_DEPTH] = {0};
-
-            void Append(uint16_t data)
-            {
-                buffer[writePtr] = data;
-                writePtr = (writePtr + 1) % STATS_DEPTH;
-
-                if (writePtr == readPtr) 
-                    readPtr = (readPtr + 1) % STATS_DEPTH;
-            };
-
-            uint16_t Count()
-            {
-                if (readPtr > writePtr)
-                    return((writePtr + STATS_DEPTH) - readPtr);
-                
-                return(writePtr - readPtr);
-            }
-        };
-
-        StatsData coStats;
-        StatsData cwuStats;
-        StatsData extStats;
-        
-        ulong statsStamp = 0;
-        ulong statsDelay = 0;
-
+       
     public :
 
         enum ETechDeviceAddress : uint16_t
@@ -256,5 +224,4 @@ class CTechManager
         void SetAutoAck(bool val) { autoAck = val; };
         void SetAddress(uint16_t address) { deviceAddress = address; };
         void SetAddressCheck(bool val) { addressCheck = val; };
-        void SetStatsDelay(uint16_t val) { statsDelay = ((ulong)val) * 1000; };
 };

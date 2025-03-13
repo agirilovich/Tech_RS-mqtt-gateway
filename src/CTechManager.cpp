@@ -3,8 +3,6 @@
 CTechManager::CTechManager(uint16_t addr)
 {
     deviceAddress = addr;
-
-    SetStatsDelay(180);
 }
 
 void CTechManager::Update()
@@ -21,12 +19,6 @@ void CTechManager::Update()
                     SendPacket();
             }
         }
-    }
-
-    // Stats.
-    if (millis() - statsStamp > statsDelay)
-    {
-        statsStamp = millis();
     }
 }
 
