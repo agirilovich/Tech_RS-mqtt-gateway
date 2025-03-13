@@ -4,7 +4,6 @@ class CTechManager
 {
     private:
         static const uint16_t MAX_PACKET_SIZE = 500;
-        static const uint16_t MAX_UNKNOWN_COMMANDS = 100;
         static const uint16_t STATS_DEPTH = 1024;
 
     public:
@@ -58,8 +57,6 @@ class CTechManager
 
             ValveData valveData[4] = { {0}, {0}, {0}, {0}};
 
-            uint16_t ucmd_id[MAX_UNKNOWN_COMMANDS] = {0};
-            uint16_t ucmd_data[MAX_UNKNOWN_COMMANDS] = {0};
         };
 
     private:
@@ -111,8 +108,6 @@ class CTechManager
         char* GetPercentPrecise(uint16_t value);
         char* GetTime(uint16_t value);
 
-        void UpdateUnknownCommand(uint16_t id, uint16_t val);
-
         Stream* ioStream = nullptr;
 
         uint16_t requestStamp = 0;
@@ -158,11 +153,6 @@ class CTechManager
         
         ulong statsStamp = 0;
         ulong statsDelay = 0;
-
-        bool firstCo = true;
-        bool firstCwu = true;
-        bool firstExt = true;
-        void StoreStats();
 
     public :
 

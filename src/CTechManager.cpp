@@ -27,7 +27,6 @@ void CTechManager::Update()
     if (millis() - statsStamp > statsDelay)
     {
         statsStamp = millis();
-        StoreStats();
     }
 }
 
@@ -132,17 +131,6 @@ void CTechManager::SendCommand(ETechCommand cmd, uint16_t value)
     txBuffer[txSize++] = value;
 }
 
-
-void CTechManager::StoreStats()
-{
-    firstCo = false;
-    firstCwu = false;
-    firstExt = false;
-
-    coStats.Append(deviceState.co_temp);
-    cwuStats.Append(deviceState.cwu_temp);
-    extStats.Append(deviceState.external_temp);
-}
 
 uint16_t CTechManager::CRC16Cycle(uint16_t crc, uint8_t byte)
 {
@@ -380,24 +368,10 @@ void CTechManager::ProcessPacket()
 
             case(ETechCommand::EXTERNAL_TEMP): // 0x1681
                 deviceState.external_temp =  cmd_val;
-
-                if (firstExt)
-                {
-                    firstExt = false;
-                    extStats.Append(deviceState.external_temp);
-                }
-
             break;
 
             case(ETechCommand::CO_TEMP): // 0x157D
                 deviceState.co_temp =  cmd_val;
-
-                if (firstCo)
-                {
-                    firstCo = false;
-                    coStats.Append(deviceState.co_temp);
-                }
-
             break;
 
             case(ETechCommand::CO_TEMP_RET): // 0x16C1
@@ -418,12 +392,6 @@ void CTechManager::ProcessPacket()
 
             case(ETechCommand::CWU_TEMP): // 0x166E
                 deviceState.cwu_temp =  cmd_val;
-
-                if (firstCwu)
-                {
-                    firstCwu = false;
-                    cwuStats.Append(deviceState.cwu_temp);
-                }
             break;
 
             case(ETechCommand::CWU_MIN_MAX): // 0x169F
@@ -540,36 +508,12 @@ void CTechManager::ProcessPacket()
             break;
 
             default: // Dump unknown commands.
-            /*
                 Serial.print("Unknown command. ");
                 Serial.print("ID: ");
                 Serial.print(cmd_id);
                 Serial.print(",   val: ");
                 Serial.println(cmd_val);
-            */
-                UpdateUnknownCommand(cmd_id, cmd_val);
             break;
         }
     }
 }
-
-void CTechManager::UpdateUnknownCommand(uint16_t id, uint16_t val)
-{
-    for (uint16_t i = 0; i < MAX_UNKNOWN_COMMANDS; i++)
-    {
-        // Update command.
-        if (deviceState.ucmd_id[i] == id)
-        {
-            deviceState.ucmd_data[i] = val;
-            break;
-        }
-
-        // Command not found (first empty slot), store it.
-        if (deviceState.ucmd_id[i] == 0)
-        {
-            deviceState.ucmd_id[i] = id;
-            deviceState.ucmd_data[i] = val;
-            break;
-        }
-    }
-}  
