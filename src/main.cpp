@@ -202,17 +202,19 @@ void loop()
       Serial.println("Done");
     } else {
     mqtt_num_attempts++;
-    Serial.println("Failed. Skip the cicle.");
+    Serial.println("Failed. Skip the cycle.");
     }
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("======================================================================");
   }
+  /*
   if (millis() - DateTimeSetStamp > DateTimeSetDelay)
   {
     DateTimeSetStamp = millis();
     Serial.println("Sync Day and Time in the Device");
     UpdateDeviceTime();
   }
+  */
   //check if long time no mqtt publish
   if (mqtt_num_attempts < max_mqtt_attempts)
   {
