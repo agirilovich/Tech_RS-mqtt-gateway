@@ -19,8 +19,8 @@
 #define LED_BUILTIN 22
 
 //Ports of pull-up transistors
-#define RX_PULLUP 21
-#define TX_PULLUP 22
+#define RX_PULLUP 19
+#define TX_PULLUP 23
 
 #include "CTechManager.h"
 CTechManager techManager;
@@ -126,9 +126,9 @@ void setup()
 
   while (esp_task_wdt_status(NULL) != ESP_OK) {
     // LED blinks indefinitely
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(500);
     digitalWrite(LED_BUILTIN, LOW);
+    delay(500);
+    digitalWrite(LED_BUILTIN, HIGH);
     delay(500);
   }
 
@@ -194,7 +194,7 @@ void loop()
     Serial.print("Read and Set sensors values...");
     SensorsCurrentValues = readRS();
     Serial.println("Done.");
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
     Serial.print("Publish sensors values via MQTT....");
     if (MQTTpublish(&SensorsCurrentValues))
     {
@@ -202,9 +202,10 @@ void loop()
       Serial.println("Done");
     } else {
     mqtt_num_attempts++;
-    Serial.println("Failed. Skip the cycle.");
+    Serial.print("Failed. Skip the cycle. Number of failed cycles: ");
+    Serial.println(mqtt_num_attempts);
     }
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
     Serial.println("======================================================================");
   }
   /*
