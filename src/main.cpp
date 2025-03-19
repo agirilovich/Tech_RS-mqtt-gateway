@@ -97,6 +97,7 @@ void setup()
   Serial.println("Start");
 
   pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
 
   esp_reset_reason_t reason = esp_reset_reason();
   switch (reason) {
@@ -194,19 +195,30 @@ void loop()
     Serial.print("Read and Set sensors values...");
     SensorsCurrentValues = readRS();
     Serial.println("Done.");
-    digitalWrite(LED_BUILTIN, LOW);
-    Serial.print("Publish sensors values via MQTT....");
-    if (MQTTpublish(&SensorsCurrentValues))
+
+    // Check device status.
+    switch((int)SensorsCurrentValues.device_state)
     {
-      mqtt_num_attempts = 0;
-      Serial.println("Done");
-    } else {
-    mqtt_num_attempts++;
-    Serial.print("Failed. Skip the cycle. Number of failed cycles: ");
-    Serial.println(mqtt_num_attempts);
+      case(0):
+        Serial.print("Device state = 0. No MQTT publishing.");
+      break;
+
+      default:
+        digitalWrite(LED_BUILTIN, LOW);
+        Serial.print("Publish sensors values via MQTT....");
+        if (MQTTpublish(&SensorsCurrentValues))
+        {
+          mqtt_num_attempts = 0;
+          Serial.println("Done");
+        } else {
+        mqtt_num_attempts++;
+        Serial.print("Failed. Skip the cycle. Number of failed cycles: ");
+        Serial.println(mqtt_num_attempts);
+        }
+        digitalWrite(LED_BUILTIN, HIGH);
+        Serial.println("======================================================================");
+      break;
     }
-    digitalWrite(LED_BUILTIN, HIGH);
-    Serial.println("======================================================================");
   }
   /*
   if (millis() - DateTimeSetStamp > DateTimeSetDelay)
