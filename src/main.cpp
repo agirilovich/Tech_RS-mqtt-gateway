@@ -197,27 +197,23 @@ void loop()
     Serial.println("Done.");
 
     // Check device status.
-    switch((int)SensorsCurrentValues.device_state)
+    if ((int)SensorsCurrentValues.device_state == 0 || (int)SensorsCurrentValues.valveData[0].mix_valve_type == 0 || (int)SensorsCurrentValues.valveData[0].mix_valve_type == 0)
     {
-      case(0):
-        Serial.print("Device state = 0. No MQTT publishing.");
-      break;
-
-      default:
-        digitalWrite(LED_BUILTIN, LOW);
-        Serial.print("Publish sensors values via MQTT....");
-        if (MQTTpublish(&SensorsCurrentValues))
-        {
-          mqtt_num_attempts = 0;
-          Serial.println("Done");
-        } else {
-        mqtt_num_attempts++;
-        Serial.print("Failed. Skip the cycle. Number of failed cycles: ");
-        Serial.println(mqtt_num_attempts);
-        }
-        digitalWrite(LED_BUILTIN, HIGH);
-        Serial.println("======================================================================");
-      break;
+        Serial.print("Device or valve state = 0. Corrupted data. No MQTT publishing.");
+    } else {
+      digitalWrite(LED_BUILTIN, LOW);
+      Serial.print("Publish sensors values via MQTT....");
+      if (MQTTpublish(&SensorsCurrentValues))
+      {
+        mqtt_num_attempts = 0;
+        Serial.println("Done");
+      } else {
+      mqtt_num_attempts++;
+      Serial.print("Failed. Skip the cycle. Number of failed cycles: ");
+      Serial.println(mqtt_num_attempts);
+      }
+      digitalWrite(LED_BUILTIN, HIGH);
+      Serial.println("======================================================================");
     }
   }
   /*
