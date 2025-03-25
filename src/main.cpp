@@ -197,7 +197,7 @@ void loop()
     Serial.println("Done.");
 
     // Check device status.
-    if ((int)SensorsCurrentValues.device_state == 0 || (int)SensorsCurrentValues.device_state == 65535 || (int)SensorsCurrentValues.valveData[0].mix_valve_type == 0 || (int)SensorsCurrentValues.valveData[0].mix_valve_type == 0)
+    if ((int)SensorsCurrentValues.device_state == 0 || (int)SensorsCurrentValues.device_state == 65535 || (int)SensorsCurrentValues.valveData[0].mix_valve_type == 0 || (int)SensorsCurrentValues.valveData[1].mix_valve_type == 0)
     {
         Serial.print("Device or valve state = 0. Corrupted data. No MQTT publishing.");
     } else {
