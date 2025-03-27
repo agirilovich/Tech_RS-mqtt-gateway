@@ -330,184 +330,188 @@ void CTechManager::ProcessPacket()
         uint16_t cmd_id  = packet[dataPtr++];
         uint16_t cmd_val = packet[dataPtr++];
 
-        // Process command.
-        switch(cmd_id)
+        if (cmd_val != 65535)
         {
-            // General device status.
-            case(ETechCommand::DEVICE_TYPE): // 0x15a7
-                deviceState.device_type = cmd_val;
-            break;
 
-            case(ETechCommand::DEVICE_MODEL): // 0x16ff
-                deviceState.device_model = cmd_val;
-            break;
+            // Process command.
+            switch(cmd_id)
+            {
+                // General device status.
+                case(ETechCommand::DEVICE_TYPE): // 0x15a7
+                    deviceState.device_type = cmd_val;
+                break;
 
-            case(ETechCommand::DEVICE_TIME): // 0x1620
-                deviceState.device_time =  cmd_val;
-            break;
+                case(ETechCommand::DEVICE_MODEL): // 0x16ff
+                    deviceState.device_model = cmd_val;
+                break;
 
-            case(ETechCommand::DEVICE_DAY): // 0x1621
-                deviceState.device_day =  cmd_val;
-            break;
+                case(ETechCommand::DEVICE_TIME): // 0x1620
+                    deviceState.device_time =  cmd_val;
+                break;
 
-            case(ETechCommand::DEVICE_STATE): // 0x157C
-                deviceState.device_state =  cmd_val;
-            break;
+                case(ETechCommand::DEVICE_DAY): // 0x1621
+                    deviceState.device_day =  cmd_val;
+                break;
 
-            case(ETechCommand::FUMES_TEMP): // 0x15B7
-                deviceState.fumes_temp =  cmd_val;
-            break;
+                case(ETechCommand::DEVICE_STATE): // 0x157C
+                    deviceState.device_state =  cmd_val;
+                break;
 
-            case(ETechCommand::EXTERNAL_TEMP): // 0x1681
-                deviceState.external_temp =  cmd_val;
-            break;
+                case(ETechCommand::FUMES_TEMP): // 0x15B7
+                    deviceState.fumes_temp =  cmd_val;
+                break;
 
-            case(ETechCommand::CO_TEMP): // 0x157D
-                deviceState.co_temp =  cmd_val;
-            break;
+                case(ETechCommand::EXTERNAL_TEMP): // 0x1681
+                    deviceState.external_temp =  cmd_val;
+                break;
 
-            case(ETechCommand::CO_TEMP_RET): // 0x16C1
-                deviceState.co_temp_ret =  cmd_val;
-            break;
+                case(ETechCommand::CO_TEMP): // 0x157D
+                    deviceState.co_temp =  cmd_val;
+                break;
 
-            case(ETechCommand::CO_MIN_MAX): // 0x169E
-                deviceState.co_min_max =  cmd_val;
-            break;
+                case(ETechCommand::CO_TEMP_RET): // 0x16C1
+                    deviceState.co_temp_ret =  cmd_val;
+                break;
 
-            case(ETechCommand::CO_TEMP_SET): // 0x157E
-                deviceState.co_temp_set =  cmd_val;
-            break;
+                case(ETechCommand::CO_MIN_MAX): // 0x169E
+                    deviceState.co_min_max =  cmd_val;
+                break;
 
-            case(ETechCommand::CO_TEMP_ADJUSTMENT): // 0x157E
-                deviceState.co_temp_adj =  cmd_val;
-            break;
+                case(ETechCommand::CO_TEMP_SET): // 0x157E
+                    deviceState.co_temp_set =  cmd_val;
+                break;
 
-            case(ETechCommand::CWU_TEMP): // 0x166E
-                deviceState.cwu_temp =  cmd_val;
-            break;
+                case(ETechCommand::CO_TEMP_ADJUSTMENT): // 0x157E
+                    deviceState.co_temp_adj =  cmd_val;
+                break;
 
-            case(ETechCommand::CWU_MIN_MAX): // 0x169F
-                deviceState.cwu_min_max =  cmd_val;
-            break;
+                case(ETechCommand::CWU_TEMP): // 0x166E
+                    deviceState.cwu_temp =  cmd_val;
+                break;
 
-            case(ETechCommand::CWU_TEMP_SET): // 0x1616
-                deviceState.cwu_temp_set =  cmd_val;
-            break;
+                case(ETechCommand::CWU_MIN_MAX): // 0x169F
+                    deviceState.cwu_min_max =  cmd_val;
+                break;
 
-            case(ETechCommand::FUEL_STOCK_LEVEL): // 0x16F1
-                deviceState.fuel_stock_level =  cmd_val;
-            break;
+                case(ETechCommand::CWU_TEMP_SET): // 0x1616
+                    deviceState.cwu_temp_set =  cmd_val;
+                break;
 
-            case(ETechCommand::FUEL_STOCK_TIME): // 0x16F2
-                deviceState.fuel_stock_time =  cmd_val;
-            break;
+                case(ETechCommand::FUEL_STOCK_LEVEL): // 0x16F1
+                    deviceState.fuel_stock_level =  cmd_val;
+                break;
 
-            case(ETechCommand::PUMP_MODE): // 0x15CD
-                deviceState.pump_mode =  cmd_val;
-            break;
+                case(ETechCommand::FUEL_STOCK_TIME): // 0x16F2
+                    deviceState.fuel_stock_time =  cmd_val;
+                break;
 
-            case(ETechCommand::PUMP_STATE_CO): // 0x1589
-                deviceState.pump_state_co =  cmd_val;
-            break;
+                case(ETechCommand::PUMP_MODE): // 0x15CD
+                    deviceState.pump_mode =  cmd_val;
+                break;
 
-            case(ETechCommand::PUMP_STATE_CWU): // 0x158B
-                deviceState.pump_state_cwu =  cmd_val;
-            break;
+                case(ETechCommand::PUMP_STATE_CO): // 0x1589
+                    deviceState.pump_state_co =  cmd_val;
+                break;
 
-            case(ETechCommand::FAN_STATE): // 0x1588
-                deviceState.fan_state =  cmd_val;
-            break;
+                case(ETechCommand::PUMP_STATE_CWU): // 0x158B
+                    deviceState.pump_state_cwu =  cmd_val;
+                break;
 
-            case(ETechCommand::FAN_SPEED): // 0x159B
-                deviceState.fan_speed =  cmd_val;
-            break;
+                case(ETechCommand::FAN_STATE): // 0x1588
+                    deviceState.fan_state =  cmd_val;
+                break;
 
-            case(ETechCommand::FEEDER_STATE): // 0x1587
-                deviceState.feeder_state =  cmd_val;
-            break;
+                case(ETechCommand::FAN_SPEED): // 0x159B
+                    deviceState.fan_speed =  cmd_val;
+                break;
 
-            case(ETechCommand::FEEDER_TEMP): // 0x16F8
-                deviceState.feeder_temp = cmd_val;
-            break;
+                case(ETechCommand::FEEDER_STATE): // 0x1587
+                    deviceState.feeder_state =  cmd_val;
+                break;
 
-            // Room controller.
-            case(ETechCommand::REG_SET_TEMP_ROOM): // 0x0405
-            break;
+                case(ETechCommand::FEEDER_TEMP): // 0x16F8
+                    deviceState.feeder_temp = cmd_val;
+                break;
 
-            case(ETechCommand::REG_SET_TEMP_CO): // 0x01f6
-            break;
+                // Room controller.
+                case(ETechCommand::REG_SET_TEMP_ROOM): // 0x0405
+                break;
 
-            case(ETechCommand::REG_SET_TEMP_CWU): // 0x028E
-            break;
+                case(ETechCommand::REG_SET_TEMP_CO): // 0x01f6
+                break;
 
-            case(ETechCommand::REG_TIME): // 0x0298
-            break;
+                case(ETechCommand::REG_SET_TEMP_CWU): // 0x028E
+                break;
 
-            case(ETechCommand::REG_DAY): // 0x0299
-            break;
+                case(ETechCommand::REG_TIME): // 0x0298
+                break;
 
-            case(ETechCommand::REG_PUMP_MODE): // 0x0245
-            break;
+                case(ETechCommand::REG_DAY): // 0x0299
+                break;
 
-            // Valve controll.
-            case(ETechCommand::VALVE_DATA_SET): // 0x16EF
-                currentValveSet = cmd_val;
-            break;
+                case(ETechCommand::REG_PUMP_MODE): // 0x0245
+                break;
 
-            case(ETechCommand::VALVE_ADDRESS): // 0x16C2
-                deviceState.valveData[currentValveSet].address = cmd_val;
-            break;
+                // Valve controll.
+                case(ETechCommand::VALVE_DATA_SET): // 0x16EF
+                    currentValveSet = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_TEMP_SET): // 0x167F
-                deviceState.valveData[currentValveSet].temp_set = cmd_val;
-            break;
+                case(ETechCommand::VALVE_ADDRESS): // 0x16C2
+                    deviceState.valveData[currentValveSet].address = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_STATE): // 0x1680
-                deviceState.valveData[currentValveSet].state = cmd_val;
-            break;
+                case(ETechCommand::VALVE_TEMP_SET): // 0x167F
+                    deviceState.valveData[currentValveSet].temp_set = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_OPEN_LEVEL): // 0x15AC
-                deviceState.valveData[currentValveSet].openLevel = cmd_val;
-            break;
+                case(ETechCommand::VALVE_STATE): // 0x1680
+                    deviceState.valveData[currentValveSet].state = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_PUMP_STATE): // 0x16B9
-                deviceState.valveData[currentValveSet].pump_state = cmd_val;
-            break;
+                case(ETechCommand::VALVE_OPEN_LEVEL): // 0x15AC
+                    deviceState.valveData[currentValveSet].openLevel = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_TYPE): // 0x1624
-                deviceState.valveData[currentValveSet].type  = cmd_val;
-            break;
+                case(ETechCommand::VALVE_PUMP_STATE): // 0x16B9
+                    deviceState.valveData[currentValveSet].pump_state = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_TEMP): // 0x1614
-                deviceState.valveData[currentValveSet].temp  = cmd_val;
-            break;
+                case(ETechCommand::VALVE_TYPE): // 0x1624
+                    deviceState.valveData[currentValveSet].type  = cmd_val;
+                break;
 
-            case(ETechCommand::VALVE_MIN_MAX): // 0x16C3
-                deviceState.valveData[currentValveSet].minMax  = cmd_val;
-            break;
+                case(ETechCommand::VALVE_TEMP): // 0x1614
+                    deviceState.valveData[currentValveSet].temp  = cmd_val;
+                break;
 
-            case(ETechCommand::CMD_CRC): // Skip crc.
-            break;
+                case(ETechCommand::VALVE_MIN_MAX): // 0x16C3
+                    deviceState.valveData[currentValveSet].minMax  = cmd_val;
+                break;
 
-            // Multibyte data.
-            case(ETechCommand::ETH_1788): //
-            case(ETechCommand::ETH_0400): //
+                case(ETechCommand::CMD_CRC): // Skip crc.
+                break;
 
-                // Skip data.
-                if ((cmd_val % 4) != 0)
-                    cmd_val = ((cmd_val >> 2) + 1) << 4;
-                dataPtr += cmd_val;
-            break;
+                // Multibyte data.
+                case(ETechCommand::ETH_1788): //
+                case(ETechCommand::ETH_0400): //
 
-            default: // Dump unknown commands.
-            /*
-                Serial.print("Unknown command. ");
-                Serial.print("ID: ");
-                Serial.print(cmd_id);
-                Serial.print(",   val: ");
-                Serial.println(cmd_val);
-            */
-            break;
+                    // Skip data.
+                    if ((cmd_val % 4) != 0)
+                        cmd_val = ((cmd_val >> 2) + 1) << 4;
+                    dataPtr += cmd_val;
+                break;
+
+                default: // Dump unknown commands.
+                /*
+                    Serial.print("Unknown command. ");
+                    Serial.print("ID: ");
+                    Serial.print(cmd_id);
+                    Serial.print(",   val: ");
+                    Serial.println(cmd_val);
+                */
+                break;
+            }
         }
     }
 }
