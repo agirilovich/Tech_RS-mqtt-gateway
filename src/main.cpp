@@ -228,5 +228,9 @@ void loop()
   if (mqtt_num_attempts < max_mqtt_attempts)
   {
     esp_task_wdt_reset();
+  } else {
+    esp_task_wdt_init(1, true);
+    esp_task_wdt_add(NULL);
+    while(true);
   }
 }
